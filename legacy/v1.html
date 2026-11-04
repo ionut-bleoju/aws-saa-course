@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AWS Solutions Architect Associate course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0F4; --surface:#FFFFFF; --ink:#1B2A41; --muted:#5A6B82; --line:#D3DAE4;
+  --accent:#2F5BD3; --accent-bg:#E8EEFC; --ok:#1E7A4C; --ok-bg:#E6F4EC; --bad:#B42318; --bad-bg:#FCEBE9; --neutral-bg:#F3F5F8;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121822; --surface:#1A2230; --ink:#E4E9F1; --muted:#9AA8BC; --line:#2C3748;
+    --accent:#7FA2FF; --accent-bg:#1E2A47; --ok:#5BD08F; --ok-bg:#16301F; --bad:#FF8A7A; --bad-bg:#3A1C19; --neutral-bg:#1F2939;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121822; --surface:#1A2230; --ink:#E4E9F1; --muted:#9AA8BC; --line:#2C3748;
+  --accent:#7FA2FF; --accent-bg:#1E2A47; --ok:#5BD08F; --ok-bg:#16301F; --bad:#FF8A7A; --bad-bg:#3A1C19; --neutral-bg:#1F2939;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.6}
+main{max-width:800px;margin:0 auto;padding:24px 18px 72px}
+h1{font-size:1.4rem;margin:0 0 4px}
+h2{font-size:1.3rem;margin:4px 0 12px}
+h3{font-size:1.1rem;margin:0 0 12px}
+.sub{color:var(--muted);margin:0 0 16px}
+.topbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+select,input[type=search]{font:inherit;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:9px 12px}
+select{flex:1;min-width:220px}
+select:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:16px}
+.kicker{color:var(--muted);font-size:.9rem}
+.body p{margin:0 0 12px}
+.body ul,.body ol{margin:0 0 12px;padding-left:22px}
+.body li{margin:4px 0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--neutral-bg);padding:1px 5px;border-radius:5px}
+pre{background:var(--neutral-bg);border-radius:10px;padding:12px 14px;overflow-x:auto;font-size:.85rem;margin:0 0 12px}
+pre code{background:none;padding:0}
+.tablewrap{overflow-x:auto;margin:0 0 12px}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:700}
+.example{margin-top:16px;padding:14px 16px;background:var(--accent-bg);border-left:4px solid var(--accent);border-radius:0}
+.example strong{display:block;margin-bottom:4px}
+.example p{margin:0 0 8px}.example p:last-child{margin:0}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.tab{font:inherit;font-size:.9rem;padding:6px 12px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.tab[aria-current="true"]{border-color:var(--accent);background:var(--accent-bg);font-weight:700}
+.tab.done{border-color:var(--ok)}
+.tab:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.q{padding-top:6px}
+.q + .q{border-top:1px solid var(--line);margin-top:22px;padding-top:22px}
+.prompt{font-weight:700;margin:0 0 14px}
+.qlabel{color:var(--accent);margin-right:4px}
+.options{display:flex;flex-direction:column;gap:10px;list-style:none;padding:0;margin:0}
+.opt{border:2px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.opt button{all:unset;box-sizing:border-box;display:flex;gap:12px;width:100%;padding:12px 14px;cursor:pointer;align-items:flex-start}
+.opt button:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.opt:not(.locked):hover{border-color:var(--accent)}
+.letter{flex:0 0 28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:.9rem}
+.otext{padding-top:2px}
+.why{display:none;padding:0 14px 14px 54px;font-size:.95rem}
+.verdict{font-weight:700;display:block;margin-bottom:2px}
+.locked .why{display:block}
+.locked button{cursor:default}
+.opt.correct{border-color:var(--ok);background:var(--ok-bg)}
+.opt.correct .letter{border-color:var(--ok);background:var(--ok);color:var(--surface)}
+.opt.correct .verdict{color:var(--ok)}
+.opt.picked-wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt.picked-wrong .letter{border-color:var(--bad);background:var(--bad);color:var(--surface)}
+.opt.picked-wrong .verdict{color:var(--bad)}
+.opt.other{background:var(--neutral-bg)}
+.opt.other .verdict{color:var(--muted)}
+.actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:700;padding:11px 20px;border-radius:10px;border:2px solid var(--accent);background:var(--accent);color:var(--surface);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.muted{color:var(--muted)}
+.gloss{margin:14px 0 0;padding:0}
+.gloss div{padding:10px 0;border-bottom:1px solid var(--line)}
+.gloss dt{font-weight:700}
+.gloss dt span{font-weight:400;color:var(--muted)}
+.gloss dd{margin:2px 0 0}
+.tag{font-size:.8rem;color:var(--muted);white-space:nowrap}
+input[type=search]{width:100%}
+</style>
+</head>
+<body>
+<main>
+  <h1>AWS Solutions Architect Associate</h1>
+  <p class="sub">Learn a topic, check it right away, then prove it in the module quiz.</p>
+  <div class="topbar">
+    <label for="modsel" class="muted">Module</label>
+    <select id="modsel"></select>
+    <button class="btn ghost" id="glossaryBtn">Glossary</button>
+  </div>
+  <div id="app"></div>
+</main>
+<script>
+const COURSE = [
+{
+ title:`Foundations`, sub:`How AWS is organized`,
+ lessons:[
+ {
+  title:`What AWS actually is`,
+  body:`<p>AWS rents you IT building blocks over the internet: servers, storage, databases, networks and hundreds of ready-made services. You pay for what you use (per second, per GB, per request) with no hardware to buy upfront.</p>
+<p>Services sit on a spectrum of how much AWS manages for you:</p>
+<ul><li><strong>Unmanaged:</strong> EC2 gives you a virtual server. You install, patch and scale the software yourself.</li>
+<li><strong>Managed:</strong> RDS gives you a ready database. AWS installs, patches and backs it up; you just use it.</li>
+<li><strong>Serverless:</strong> Lambda, DynamoDB, S3. No servers visible at all; you pay per request or per GB and they scale automatically.</li></ul>
+<p>The exam constantly rewards moving toward the managed and serverless end. When a question says <em>least operational overhead</em>, the answer is usually the most managed option that still meets every requirement.</p>`,
+  example:`<p>You need PostgreSQL. Option A: launch EC2, install PostgreSQL, set up backups, patch it every month. Option B: create an RDS PostgreSQL database, and AWS does all of that. Both work, but B has less operational overhead, so it wins unless the question needs something only A allows (like full access to the operating system).</p>`,
+  checks:[
+  {q:`A team wants to run MySQL but doesn't want to install, patch or back up the database software themselves. Which option fits?`,
+   options:[
+    {t:`Install MySQL on an EC2 instance`, ok:false, why:`EC2 is just a virtual server. You'd install MySQL, patch the OS and database, and set up backups yourself: exactly the work the team wants to avoid.`},
+    {t:`Amazon RDS for MySQL`, ok:true, why:`RDS is the managed relational database service. AWS handles installation, patching, backups and (optionally) failover; you connect and use it.`},
+    {t:`Amazon S3`, ok:false, why:`S3 is object storage for files. It's not a database engine and can't run SQL queries for an app the way MySQL does.`},
+    {t:`AWS Lambda`, ok:false, why:`Lambda runs your code when an event happens. It's compute, not a database.`}
+   ]}
+  ]
+ },
+ {
+  title:`Regions`,
+  body:`<p>A <strong>Region</strong> is a separate geographic area where AWS runs data centers, like Frankfurt or Ireland. Each has a code: <code>eu-central-1</code> = Frankfurt, <code>eu-west-1</code> = Ireland, <code>us-east-1</code> = N. Virginia.</p>
+<p>Regions are independent: data you store in one Region stays there unless you copy it elsewhere. Most services are <em>regional</em> (you pick a Region when creating them). A few are <em>global</em>: IAM, Route 53 and CloudFront.</p>
+<p>How to choose a Region, in the order the exam cares about:</p>
+<ol><li><strong>Compliance / data residency:</strong> laws may require data to stay in a country or in the EU. This is a hard rule.</li>
+<li><strong>Latency:</strong> closer to your users is faster.</li>
+<li><strong>Service availability:</strong> some services launch in certain Regions first.</li>
+<li><strong>Price:</strong> prices differ a little between Regions.</li></ol>`,
+  example:`<p>A German healthcare company must keep patient data in Germany. That rules out every Region except Frankfurt (<code>eu-central-1</code>), no matter which one is cheaper or faster.</p>`,
+  checks:[
+  {q:`A company's legal team requires that customer data never leave the European Union. Most users are in the United States. What should decide the Region?`,
+   options:[
+    {t:`The Region closest to the US users`, ok:false, why:`Latency matters, but only after legal requirements are met. A US Region would break the EU-only rule.`},
+    {t:`An EU Region, because compliance comes before latency and price`, ok:true, why:`Data residency is a hard requirement. You pick an EU Region first, then optimize speed within that limit.`},
+    {t:`The cheapest Region`, ok:false, why:`Price is the lowest priority of the four factors. It never overrides a legal requirement.`},
+    {t:`us-east-1, because new services often launch there first`, ok:false, why:`Service availability only matters if you need a service that's missing elsewhere. It never overrides the law.`}
+   ]}
+  ]
+ },
+ {
+  title:`Availability Zones`,
+  body:`<p>Each Region contains several <strong>Availability Zones (AZs)</strong>, usually three or more. An AZ is one or more data centers with its own power, cooling and networking, kilometers away from the other AZs but connected to them by very fast, low-latency links. AZ names look like <code>eu-central-1a</code>, <code>eu-central-1b</code>.</p>
+<p>The point: one AZ can fail (fire, flood, power cut) while the others keep running. So the basic rule of reliability on AWS is <strong>spread across at least two AZs</strong>.</p>
+<p>Words the exam uses for this:</p>
+<ul><li><strong>Highly available:</strong> keeps working when a component fails, maybe briefly slower.</li>
+<li><strong>Fault tolerant:</strong> keeps working with <em>no</em> interruption at all, because full spare capacity is already running.</li>
+<li><strong>Single point of failure:</strong> one thing whose failure takes everything down, like one server, or one NAT gateway in one AZ.</li></ul>`,
+  example:`<p>Remember the NAT gateway question from Set 3: a NAT gateway lives in one AZ. Three AZs sharing one NAT gateway means it's a single point of failure. One per AZ removes it.</p>`,
+  checks:[
+  {q:`An application runs on two EC2 instances, both in eu-central-1a. What is the main risk?`,
+   options:[
+    {t:`If eu-central-1a fails, both instances go down together`, ok:true, why:`Two instances protect against one server failing, but not against the whole AZ failing. Put them in different AZs.`},
+    {t:`Instances in the same AZ can't communicate with each other`, ok:false, why:`They can, and with very low latency. Same-AZ is great for speed; it's just bad for resilience.`},
+    {t:`AWS allows only one instance per AZ`, ok:false, why:`There's no such limit; you can run many instances in one AZ.`},
+    {t:`Their data is automatically copied to other Regions, which costs extra`, ok:false, why:`Nothing is copied across Regions automatically. Data stays where you put it.`}
+   ]},
+  {q:`A system must keep running with zero interruption and no drop in performance if an entire AZ fails. Which design meets this?`,
+   options:[
+    {t:`One large instance with automatic recovery`, ok:false, why:`Recovery means restarting after failure, so there's downtime. And one instance in one AZ is a single point of failure.`},
+    {t:`Instances in two AZs, each AZ able to handle the full load on its own`, ok:true, why:`That's fault tolerance: if one AZ fails, the other already has enough capacity running, so users notice nothing. It costs more, because you pay for double capacity.`},
+    {t:`Instances in two AZs, each AZ carrying half the load`, ok:false, why:`Highly available but not fault tolerant: after an AZ fails, the remaining half is overloaded until more capacity starts. Performance drops.`},
+    {t:`Two instances in the same AZ`, ok:false, why:`An AZ failure takes both down.`}
+   ]}
+  ]
+ },
+ {
+  title:`Edge locations, Local Zones, Outposts`,
+  body:`<p><strong>Edge locations</strong> (also called points of presence) are hundreds of small AWS sites in cities worldwide, far more than there are Regions. You don't run your own servers there; some AWS services use them to get close to users: CloudFront caches content there, Route 53 answers DNS lookups from there, and Global Accelerator brings user traffic onto AWS's private network there.</p>
+<p>Two related options that show up occasionally:</p>
+<ul><li><strong>Local Zones:</strong> small extensions of a Region placed in a big city, for apps that need single-digit-millisecond latency to users there (gaming, live video, media editing).</li>
+<li><strong>Outposts:</strong> racks of AWS hardware installed in <em>your own</em> data center, running AWS services on-premises and managed by AWS. Used when data must stay on-site or must sit right next to local equipment.</li></ul>`,
+  example:`<p>A factory must process machine data on-site, because of strict latency to its equipment and a rule that data stays in the building. The team still wants the same AWS APIs and tools as in the cloud. That's Outposts.</p>`,
+  checks:[
+  {q:`A company must run workloads in its own data center because of data residency rules, but wants to use the same AWS services, APIs and tools it uses in the cloud. Which option fits?`,
+   options:[
+    {t:`AWS Local Zones`, ok:false, why:`Local Zones are AWS-operated sites in large cities. They're closer to users, but they're not inside your building.`},
+    {t:`AWS Outposts`, ok:true, why:`Outposts puts AWS hardware in your own data center, running AWS services with the same APIs and tools, while the data stays on-site.`},
+    {t:`Edge locations`, ok:false, why:`Edge locations serve CloudFront, Route 53 and Global Accelerator traffic. You can't run your own workloads there.`},
+    {t:`A VPN to the nearest Region`, ok:false, why:`The workload would still run in the Region, so data leaves the building, which breaks the rule.`}
+   ]}
+  ]
+ },
+ {
+  title:`Shared responsibility`,
+  body:`<p>Security is split between AWS and you. AWS secures the cloud <strong>itself</strong>: buildings, hardware, network and the virtualization layer. You secure what you put <strong>in</strong> the cloud: your data, who has access (IAM), network rules, encryption settings and anything you install.</p>
+<p>The line moves depending on how managed the service is:</p>
+<div class="tablewrap"><table><thead><tr><th>Service</th><th>AWS handles</th><th>You handle</th></tr></thead><tbody>
+<tr><td>EC2</td><td>Hardware, network, virtualization</td><td>OS patches, installed software, firewall rules, data</td></tr>
+<tr><td>RDS</td><td>Hardware, OS, database patching, automated backups</td><td>Database users, network access, choosing encryption, data</td></tr>
+<tr><td>S3, Lambda</td><td>Everything underneath</td><td>Your data or code, access policies, encryption settings</td></tr>
+</tbody></table></div>`,
+  example:`<p>A database on EC2 is hacked because its operating system wasn't patched for a year. That's the customer's responsibility: OS patching on EC2 is yours. If the same database ran on RDS, AWS would patch the OS and database engine for you.</p>`,
+  checks:[
+  {q:`Who is responsible for patching the operating system on an EC2 instance?`,
+   options:[
+    {t:`AWS`, ok:false, why:`AWS maintains the physical host and virtualization, not the OS inside your instance.`},
+    {t:`The customer`, ok:true, why:`EC2 is unmanaged: whatever runs inside the instance, including the OS, is yours to patch. (AWS Systems Manager can automate it, but it's still your job.)`},
+    {t:`Split equally between AWS and the customer`, ok:false, why:`Responsibility is divided by layer, not 50/50. The OS layer on EC2 belongs entirely to the customer.`},
+    {t:`Nobody; EC2 patches itself automatically`, ok:false, why:`EC2 does not patch your OS automatically.`}
+   ]},
+  {q:`For Amazon RDS, which of these is AWS's responsibility?`,
+   options:[
+    {t:`Patching the database engine and the underlying OS`, ok:true, why:`RDS is managed, so AWS applies OS and engine patches (in a maintenance window you can choose).`},
+    {t:`Creating database users with least privilege`, ok:false, why:`Who can log into the database and what they can do is your configuration.`},
+    {t:`Deciding whether the database is encrypted`, ok:false, why:`AWS provides encryption, but turning it on is your choice.`},
+    {t:`Choosing which networks can reach the database`, ok:false, why:`Network access (security groups, subnets) is your configuration.`}
+   ]}
+  ]
+ },
+ {
+  title:`How to read an exam question`,
+  body:`<p>Nearly every question ends with a <strong>qualifier</strong> that decides between options that all technically work:</p>
+<div class="tablewrap"><table><thead><tr><th>Qualifier</th><th>Means</th><th>Typical winners</th></tr></thead><tbody>
+<tr><td>MOST cost-effective</td><td>Cheapest option that still meets every requirement</td><td>Spot, S3 lifecycle rules, serverless for spiky load</td></tr>
+<tr><td>LEAST operational overhead</td><td>Least for you to build, run and patch</td><td>Managed or serverless services, built-in features instead of scripts</td></tr>
+<tr><td>Highly available</td><td>Survives a component or AZ failing</td><td>Multi-AZ, Auto Scaling, load balancers</td></tr>
+<tr><td>Fault tolerant</td><td>No interruption at all</td><td>Full spare capacity already running</td></tr>
+<tr><td>Scalable / elastic</td><td>Grows and shrinks with demand</td><td>Auto Scaling, serverless</td></tr>
+<tr><td>Decoupled</td><td>Parts don't depend on each other's speed or uptime</td><td>SQS, SNS, EventBridge</td></tr>
+<tr><td>MOST secure</td><td>Least privilege, private networking, encryption, temporary credentials</td><td>IAM roles, VPC endpoints, KMS</td></tr>
+</tbody></table></div>
+<p><strong>Method:</strong> read the last sentence first to find the qualifier. Then list each requirement in the scenario, cross out every option that breaks one, and let the qualifier choose among the survivors.</p>
+<p>The exam's four domains are secure (30%), resilient (26%), high-performing (24%) and cost-optimized (20%) architectures. They come from the <strong>AWS Well-Architected Framework</strong>, AWS's design guide, which has six pillars: operational excellence, security, reliability, performance efficiency, cost optimization and sustainability.</p>
+<p>You manage AWS through the web <strong>console</strong>, the <strong>CLI</strong> (command line), <strong>SDKs</strong> (libraries for your code), or <strong>infrastructure as code</strong> with CloudFormation templates.</p>`,
+  example:`<p>Four AWS names that start with "Cloud" and get confused constantly: <strong>CloudFormation</strong> builds infrastructure from templates. <strong>CloudTrail</strong> logs who called which API. <strong>CloudWatch</strong> collects metrics, logs and alarms. <strong>CloudFront</strong> is the CDN.</p>`,
+  checks:[
+  {q:`Two options both meet every requirement. One uses a custom script running on EC2; the other uses a built-in feature of a managed service. The question asks for the LEAST operational overhead. Which do you pick?`,
+   options:[
+    {t:`The custom script on EC2`, ok:false, why:`You'd write, host, monitor, patch and fix that script forever. That's operational overhead.`},
+    {t:`The built-in feature of the managed service`, ok:true, why:`AWS runs and maintains it for you. On the exam, a built-in managed feature almost always beats a homemade script.`},
+    {t:`Whichever is cheaper`, ok:false, why:`The qualifier is overhead, not cost. Answer the question that was asked.`},
+    {t:`Whichever is faster`, ok:false, why:`Speed isn't the qualifier here.`}
+   ]},
+  {q:`Which AWS service lets you define infrastructure in template files (infrastructure as code)?`,
+   options:[
+    {t:`AWS CloudFormation`, ok:true, why:`CloudFormation reads YAML or JSON templates and creates, updates or deletes the resources described in them.`},
+    {t:`AWS CloudTrail`, ok:false, why:`CloudTrail is the audit log of API calls: who did what, and when.`},
+    {t:`Amazon CloudWatch`, ok:false, why:`CloudWatch is monitoring: metrics, logs and alarms.`},
+    {t:`AWS Config`, ok:false, why:`Config records how resources are configured over time and checks them against rules. It doesn't create infrastructure.`}
+   ]}
+  ]
+ }
+ ],
+ quiz:[
+  {q:`A startup is launching in Brazil and wants the lowest latency for users there. There are no regulatory constraints. What should it do?`,
+   options:[
+    {t:`Deploy in the São Paulo Region (sa-east-1)`, ok:true, why:`With no legal constraints, latency decides, and the Region closest to Brazilian users is São Paulo.`},
+    {t:`Deploy in us-east-1 because it has the most services`, ok:false, why:`Service availability only matters if a needed service is missing. Nothing in the scenario says that, and the US is far from Brazil.`},
+    {t:`Deploy in any Region and use larger instances`, ok:false, why:`Bigger servers don't fix network distance.`},
+    {t:`Use AWS Outposts`, ok:false, why:`Outposts runs in your own data center. The startup doesn't have one in Brazil, and it doesn't need on-premises hardware.`}
+   ]},
+  {q:`Which statement about Availability Zones is correct?`,
+   options:[
+    {t:`Each AZ has independent power and networking and is linked to other AZs in its Region with low-latency connections`, ok:true, why:`That's the definition: isolated enough to fail independently, close enough for fast replication between them.`},
+    {t:`An AZ is a single server rack`, ok:false, why:`An AZ is one or more entire data centers.`},
+    {t:`The AZs of one Region are in different countries`, ok:false, why:`All AZs of a Region are in the same geographic area, typically kilometers apart.`},
+    {t:`Every service automatically copies data across all AZs`, ok:false, why:`It depends on the service. S3 stores data across multiple AZs automatically; an EBS volume lives in a single AZ.`}
+   ]},
+  {q:`A company stores files in an S3 bucket. A misconfigured bucket policy accidentally makes them public. Under the shared responsibility model, who is responsible?`,
+   options:[
+    {t:`AWS, because S3 is a managed service`, ok:false, why:`AWS secures the infrastructure that runs S3. Access settings on your bucket are your configuration.`},
+    {t:`The customer`, ok:true, why:`Access policies and data protection are always the customer's job, however managed the service is.`},
+    {t:`Both equally`, ok:false, why:`The bucket policy is entirely the customer's configuration.`},
+    {t:`Nobody, because S3 blocks public access permanently`, ok:false, why:`S3 blocks public access by default, but a customer can turn that off and write a public policy.`}
+   ]},
+  {q:`Which group contains only GLOBAL services rather than regional ones?`,
+   options:[
+    {t:`IAM, Route 53, CloudFront`, ok:true, why:`IAM identities, Route 53 DNS and CloudFront distributions aren't tied to one Region.`},
+    {t:`EC2, RDS, Lambda`, ok:false, why:`All regional: you choose a Region when you create them.`},
+    {t:`VPC, subnets, security groups`, ok:false, why:`A VPC belongs to one Region, and its subnets each sit in one AZ.`},
+    {t:`DynamoDB, SQS, S3`, ok:false, why:`All regional. S3 is a common trap: bucket names must be unique globally, but each bucket lives in one Region.`}
+   ]},
+  {q:`A game studio needs latency of a few milliseconds for players in a large city that has no AWS Region. It has no data center there. What should it use?`,
+   options:[
+    {t:`An AWS Local Zone in that city`, ok:true, why:`Local Zones put AWS compute in big cities without a full Region, for single-digit-millisecond latency to local users.`},
+    {t:`An edge location`, ok:false, why:`Edge locations serve CloudFront, Route 53 and Global Accelerator. You can't run game servers there.`},
+    {t:`AWS Outposts`, ok:false, why:`Outposts needs your own data center to install the racks, which the studio doesn't have there.`},
+    {t:`Bigger instances in the nearest Region`, ok:false, why:`Instance size doesn't reduce network distance.`}
+   ]},
+  {q:`A question asks for the MOST cost-effective solution. Option A meets all requirements for $300/month. Option B costs $100/month but misses the requirement to finish within one hour. Option C meets all requirements with the least overhead for $500/month. Which is correct?`,
+   options:[
+    {t:`Option A`, ok:true, why:`First eliminate anything that breaks a requirement (B). Among the survivors, the qualifier decides: A is the cheapest valid option.`},
+    {t:`Option B`, ok:false, why:`Cheapest, but it breaks a requirement. An option that fails a requirement is never correct, however cheap.`},
+    {t:`Option C`, ok:false, why:`It would win a 'least operational overhead' question, but this question asks about cost.`},
+    {t:`It can't be decided`, ok:false, why:`It can: eliminate, then apply the qualifier.`}
+   ]}
+ ]
+},
+{
+ title:`IAM & accounts`, sub:`Who can do what`,
+ lessons:[
+ {
+  title:`Root user, IAM users, groups`,
+  body:`<p>Creating an AWS account gives you the <strong>root user</strong>: the email and password you signed up with. Root can do <em>everything</em>, including closing the account and changing billing, and normal IAM policies can't limit it. Best practice: turn on <strong>MFA</strong> (multi-factor authentication: a code from a phone app or a hardware key) for root, never create access keys for it, and use it only for the few tasks that require it.</p>
+<p><strong>IAM</strong> (Identity and Access Management) is the free, global service for everything else:</p>
+<ul><li><strong>IAM user:</strong> an identity for one person or application. It can have a password (for the console) and/or <strong>access keys</strong> (an ID plus a secret, used by the CLI and SDKs). These credentials don't expire on their own.</li>
+<li><strong>IAM group:</strong> a set of users. Attach permissions to the group and every member gets them. Groups can't contain other groups.</li></ul>
+<p>In modern companies, people usually sign in through single sign-on rather than IAM users (lesson 4), but the exam still uses users and groups a lot.</p>`,
+  example:`<p>20 developers need identical permissions. Instead of attaching the same policy 20 times, create a <code>Developers</code> group, attach the policy once and add the users. A new hire joins the group; someone leaving is removed from it.</p>`,
+  checks:[
+  {q:`What should be done with the root user right after creating an AWS account?`,
+   options:[
+    {t:`Enable MFA, stop using it for daily work, and create a separate administrator identity`, ok:true, why:`Root has unlimited power, so you protect it heavily and lock it away. Daily administration happens through other identities.`},
+    {t:`Create access keys for root to use in automation scripts`, ok:false, why:`Root access keys are the most dangerous credential in AWS: unlimited power, and they never expire. AWS explicitly recommends never creating them.`},
+    {t:`Share the root login with team leads for emergencies`, ok:false, why:`Shared credentials remove accountability and multiply the risk. Each person should have their own identity.`},
+    {t:`Delete the root user`, ok:false, why:`You can't delete the root user; it is the account. You can only protect it.`}
+   ]},
+  {q:`15 analysts need read-only access to S3, and analysts join and leave often. What is easiest to manage?`,
+   options:[
+    {t:`Attach the policy to each analyst's IAM user`, ok:false, why:`It works, but every change means editing 15 users, and it's easy to forget one.`},
+    {t:`Create an IAM group with the policy and add the analysts to it`, ok:true, why:`One policy in one place. Joining or leaving is just adding or removing a user from the group.`},
+    {t:`Create one shared IAM user for all analysts`, ok:false, why:`Shared credentials mean you can't tell who did what, and you must change the password every time someone leaves.`},
+    {t:`Let them use the root user`, ok:false, why:`Root has unlimited power. Never use it for regular access.`}
+   ]}
+  ]
+ },
+ {
+  title:`Policies: how permissions work`,
+  body:`<p>Permissions are written as <strong>policies</strong>: JSON documents. Each statement says:</p>
+<ul><li><strong>Effect:</strong> Allow or Deny</li>
+<li><strong>Action:</strong> which API calls, e.g. <code>s3:GetObject</code> (read a file)</li>
+<li><strong>Resource:</strong> on what, identified by an <strong>ARN</strong> (Amazon Resource Name), e.g. <code>arn:aws:s3:::reports-bucket/*</code></li>
+<li><strong>Condition</strong> (optional): only when something is true, e.g. only with MFA, or only from a certain IP range</li></ul>
+<pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": ["s3:GetObject"],
+    "Resource": "arn:aws:s3:::reports-bucket/*"
+  }]
+}</code></pre>
+<p>How AWS evaluates permissions (tested often):</p>
+<ol><li>Everything is <strong>denied by default</strong>.</li>
+<li>An <strong>Allow</strong> grants access...</li>
+<li>...but an <strong>explicit Deny</strong> anywhere always wins over any Allow.</li></ol>
+<p><strong>Least privilege</strong> means granting only what a task needs, nothing more.</p>
+<p>Policies attached to users, groups or roles are <em>identity-based</em>. Some resources also accept <em>resource-based</em> policies attached to the resource itself; an S3 <strong>bucket policy</strong> is the classic example, and it can grant access to other AWS accounts.</p>`,
+  example:`<p>The policy above lets its holder read any file in <code>reports-bucket</code>, but not list, upload or delete, because those are different actions (<code>s3:ListBucket</code>, <code>s3:PutObject</code>, <code>s3:DeleteObject</code>) that aren't allowed.</p>`,
+  checks:[
+  {q:`A user is in a group whose policy allows s3:* on all buckets. A policy attached directly to the user explicitly denies s3:DeleteObject on the finance bucket. Can the user delete objects in the finance bucket?`,
+   options:[
+    {t:`Yes, because the group allows s3:*`, ok:false, why:`The Allow exists, but an explicit Deny always beats an Allow, wherever each one comes from.`},
+    {t:`No, because an explicit Deny overrides any Allow`, ok:true, why:`AWS combines all applicable policies. If any of them explicitly denies the action, the answer is deny.`},
+    {t:`Yes, because group policies rank above user policies`, ok:false, why:`There's no ranking between user and group policies. Only the rule 'explicit deny wins' applies.`},
+    {t:`Only if they use MFA`, ok:false, why:`Nothing in these policies mentions MFA. Without a condition, MFA changes nothing.`}
+   ]},
+  {q:`A newly created IAM user has no policies attached. What can they do?`,
+   options:[
+    {t:`Read everything but change nothing`, ok:false, why:`There's no default read-only access in IAM.`},
+    {t:`Nothing`, ok:true, why:`Everything is denied by default. Without an Allow somewhere, the user can't call any AWS API.`},
+    {t:`Everything except billing`, ok:false, why:`That would be close to administrator access, which must be granted explicitly.`},
+    {t:`The same as the root user`, ok:false, why:`IAM users never inherit root's powers.`}
+   ]}
+  ]
+ },
+ {
+  title:`Roles and temporary credentials`,
+  body:`<p>An <strong>IAM role</strong> is an identity with permissions but <em>no</em> password and no permanent keys. Something trusted <strong>assumes</strong> the role and receives <strong>temporary credentials</strong> from <strong>STS</strong> (Security Token Service) that expire automatically (after an hour by default).</p>
+<p>A role has two policies:</p>
+<ul><li><strong>Trust policy:</strong> WHO may assume the role (the EC2 service, the Lambda service, another AWS account...).</li>
+<li><strong>Permissions policy:</strong> WHAT the role can do once assumed.</li></ul>
+<p>Where roles show up on the exam:</p>
+<ul><li><strong>EC2:</strong> attach a role through an <strong>instance profile</strong>; the AWS SDK picks up the credentials automatically.</li>
+<li><strong>Lambda:</strong> every function has an <strong>execution role</strong> that defines what it may access.</li>
+<li><strong>Cross-account access:</strong> account A creates a role that trusts account B; people in B assume it to work in A.</li></ul>
+<p>Rule of thumb: an option that puts access keys on a server, in code or in environment variables is almost always wrong. Roles are the answer.</p>`,
+  example:`<p>Auditors in account <code>222</code> must read S3 data in production account <code>111</code>. In 111, create a role <code>AuditorReadOnly</code> with S3 read permissions and a trust policy that allows account 222. Auditors assume it and get credentials valid for an hour. Their actions appear in account 111's CloudTrail log.</p>`,
+  checks:[
+  {q:`A Lambda function must write items to a DynamoDB table. How should it get permission?`,
+   options:[
+    {t:`Store an IAM user's access keys in the function's environment variables`, ok:false, why:`Long-lived keys in configuration can leak and never expire on their own. Avoid it whenever a role is possible.`},
+    {t:`Add the permission to the function's execution role`, ok:true, why:`Lambda assumes its execution role automatically and gets temporary credentials. No keys to store or rotate.`},
+    {t:`Make the DynamoDB table public`, ok:false, why:`DynamoDB tables can't simply be made public, and it would be a serious security hole anyway.`},
+    {t:`Use the root user's credentials`, ok:false, why:`Never use root for applications.`}
+   ]},
+  {q:`Which part of an IAM role defines WHO is allowed to assume it?`,
+   options:[
+    {t:`The permissions policy`, ok:false, why:`The permissions policy defines WHAT the role can do, not who can use it.`},
+    {t:`The trust policy`, ok:true, why:`The trust policy lists the principals (services, accounts, users) allowed to assume the role.`},
+    {t:`A service control policy`, ok:false, why:`SCPs set maximum permissions for whole accounts in AWS Organizations; they don't say who can assume a role.`},
+    {t:`The instance profile`, ok:false, why:`An instance profile is just the container that attaches a role to an EC2 instance.`}
+   ]}
+  ]
+ },
+ {
+  title:`Sign-in for employees and app users`,
+  body:`<p>Two very different audiences need to sign in, and AWS has a different service for each:</p>
+<ul><li><strong>Your employees (the workforce):</strong> use <strong>IAM Identity Center</strong> (formerly called AWS SSO). Employees sign in once with their company identity (Microsoft Entra ID / Active Directory, Okta, Google...) and get access to multiple AWS accounts with assigned permission sets. No IAM users needed. Trusting an outside identity provider like this is called <strong>federation</strong>.</li>
+<li><strong>Your application's customers:</strong> use <strong>Amazon Cognito</strong>. <em>User pools</em> handle sign-up, sign-in, passwords, MFA and social login (Google, Facebook, Apple) for your web or mobile app, and issue JWT tokens. <em>Identity pools</em> exchange a signed-in user for temporary AWS credentials, so the app can call AWS directly (e.g. upload to S3).</li></ul>
+<p>Frontend comparison: a Cognito user pool is AWS's version of Auth0 or Firebase Auth.</p>
+<p>Also good to know: <strong>AWS Directory Service</strong> offers a managed Microsoft Active Directory in AWS, or an AD Connector that forwards logins to your on-premises AD.</p>`,
+  example:`<p>A company has 300 employees in Microsoft Entra ID and 12 AWS accounts: IAM Identity Center connected to Entra ID. A mobile app has a million customers signing up with email or Google: a Cognito user pool.</p>`,
+  checks:[
+  {q:`A mobile app needs sign-up and sign-in for millions of customers, including "Sign in with Google". Which service fits?`,
+   options:[
+    {t:`An IAM user for each customer`, ok:false, why:`IAM is for managing access to AWS itself and has limits (5,000 users per account). It's not a customer login system.`},
+    {t:`An Amazon Cognito user pool`, ok:true, why:`User pools are built for app end users: sign-up, sign-in, password resets, MFA and social logins, scaling to millions of users.`},
+    {t:`IAM Identity Center`, ok:false, why:`Identity Center is for your employees signing in to AWS accounts and business apps, not your app's customers.`},
+    {t:`AWS Directory Service`, ok:false, why:`Directory Service provides Microsoft Active Directory, which is for corporate users and Windows workloads, not public app sign-up.`}
+   ]},
+  {q:`A company's employees already sign in with Microsoft Active Directory. They need access to 20 AWS accounts without separate passwords. Which is the BEST approach?`,
+   options:[
+    {t:`Create IAM users with the same usernames in every account`, ok:false, why:`That's 20 accounts × every employee in separate users and passwords: a management and security nightmare.`},
+    {t:`Use IAM Identity Center connected to their Active Directory`, ok:true, why:`Employees sign in once with their existing AD credentials and get permission sets in each account. Users are managed in one place: disabling someone in AD removes their AWS access.`},
+    {t:`Use Amazon Cognito user pools`, ok:false, why:`Cognito is for your applications' end users, not workforce access to AWS accounts.`},
+    {t:`Share one administrator user per account`, ok:false, why:`Shared credentials remove accountability and violate least privilege.`}
+   ]}
+  ]
+ },
+ {
+  title:`Many accounts: Organizations`,
+  body:`<p>Companies use many AWS accounts (per team, or per environment: dev, test, prod) because an account is the strongest isolation boundary in AWS: a mistake in dev can't touch prod.</p>
+<p><strong>AWS Organizations</strong> manages them centrally:</p>
+<ul><li>One <strong>management account</strong> owns the organization; the others are <strong>member accounts</strong>.</li>
+<li>Accounts are grouped into <strong>OUs</strong> (organizational units), like folders: Prod, Dev, Sandbox.</li>
+<li><strong>Consolidated billing:</strong> one bill for all accounts, and combined usage reaches volume discounts sooner. Reserved Instance and Savings Plans discounts can be shared between accounts.</li>
+<li><strong>SCPs</strong> (service control policies) are guardrails attached to the organization root, OUs or accounts. They set the <em>maximum</em> permissions. They never grant anything themselves; they only limit. Even an account's administrators can't go beyond them.</li></ul>
+<p><strong>AWS Control Tower</strong> builds on Organizations: it automatically sets up a well-structured multi-account environment (a "landing zone") with recommended guardrails, central logging and account creation.</p>
+<p><strong>AWS RAM</strong> (Resource Access Manager) shares resources like subnets or transit gateways between accounts.</p>`,
+  example:`<p>An SCP on the Dev OU that denies everything outside <code>eu-central-1</code> means nobody in any dev account can create resources in another Region, even with full administrator permissions.</p>`,
+  checks:[
+  {q:`An SCP on an account allows only Amazon S3 and Amazon EC2. A user in that account has an IAM policy granting full DynamoDB access. Can the user use DynamoDB?`,
+   options:[
+    {t:`Yes, because their IAM policy grants it`, ok:false, why:`IAM grants permissions only within the limits the SCP sets. DynamoDB is outside those limits.`},
+    {t:`No, because the SCP sets the maximum permissions for the account`, ok:true, why:`Access requires BOTH the SCP to permit the action AND an IAM policy to allow it. Here the SCP doesn't permit DynamoDB.`},
+    {t:`Yes, if the user is an administrator`, ok:false, why:`SCPs limit everyone in a member account, administrators included.`},
+    {t:`Only read operations are allowed`, ok:false, why:`The SCP doesn't permit DynamoDB at all, so no operations are allowed.`}
+   ]},
+  {q:`A company wants to quickly set up a new multi-account environment following AWS best practices, with guardrails and centralized logging, and minimal manual work. What should it use?`,
+   options:[
+    {t:`Configure AWS Organizations, OUs, SCPs and logging by hand`, ok:false, why:`It works, but it's a lot of manual setup. Control Tower automates exactly this.`},
+    {t:`AWS Control Tower`, ok:true, why:`Control Tower creates the landing zone for you: account structure, recommended guardrails, central log account and an account factory for new accounts.`},
+    {t:`IAM Identity Center`, ok:false, why:`Identity Center handles sign-in to accounts. It doesn't build the account structure, guardrails or logging.`},
+    {t:`Deploy CloudFormation templates into each account manually`, ok:false, why:`More manual work and more to maintain. Not 'minimal manual work'.`}
+   ]}
+  ]
+ }
+ ],
+ quiz:[
+  {q:`Developers run scripts from their laptops using long-lived access keys of IAM users. Security wants to remove the risk of these keys leaking. What is the BEST solution?`,
+   options:[
+    {t:`Rotate the access keys once a year`, ok:false, why:`Rotation shortens how long a leaked key works, but the keys are still long-lived and stored on laptops.`},
+    {t:`Use IAM Identity Center so developers get temporary credentials for the CLI`, ok:true, why:`Developers sign in through Identity Center (e.g. 'aws sso login') and get credentials that expire automatically. There are no permanent keys left to leak.`},
+    {t:`Have each team share one access key`, ok:false, why:`Worse: same leak risk, and no way to tell who did what.`},
+    {t:`Store the keys in a private Git repository`, ok:false, why:`Committing credentials is a classic leak path, private repo or not.`}
+   ]},
+  {q:`A company wants users to be able to delete objects in a sensitive S3 bucket ONLY if they signed in with MFA. How can this be enforced?`,
+   options:[
+    {t:`Add a Condition to the policy that requires MFA (aws:MultiFactorAuthPresent)`, ok:true, why:`Conditions make a statement apply only when something is true. Here, delete is allowed only if the request was made with MFA.`},
+    {t:`Create an SCP that allows s3:DeleteObject`, ok:false, why:`SCPs never grant permissions, they only limit them. And this one doesn't mention MFA.`},
+    {t:`Enable Amazon Cognito for the bucket`, ok:false, why:`Cognito is for app end users signing in. It doesn't control IAM permissions on buckets.`},
+    {t:`Enable AWS CloudTrail`, ok:false, why:`CloudTrail logs who deleted what, after the fact. It doesn't prevent anything.`}
+   ]},
+  {q:`An application on EC2 in account A must read objects from an S3 bucket in account B. What is the MOST secure setup?`,
+   options:[
+    {t:`Give the EC2 instance an IAM role, and add a bucket policy in account B that allows that role to read`, ok:true, why:`The instance gets temporary credentials from its role, and the bucket policy (a resource-based policy) lets the other account's role in. No keys anywhere.`},
+    {t:`Copy access keys of an IAM user from account B into the application's config`, ok:false, why:`Long-lived keys stored on a server can leak and never expire. Roles exist to avoid this.`},
+    {t:`Make the bucket public`, ok:false, why:`Then everyone on the internet can read it.`},
+    {t:`Create an SCP in account B that allows account A`, ok:false, why:`SCPs never grant access; they only limit. Cross-account access needs a role and/or a resource policy.`}
+   ]},
+  {q:`Security wants to find which S3 buckets, KMS keys and IAM roles are shared with accounts outside the organization. Which service does this?`,
+   options:[
+    {t:`IAM Access Analyzer`, ok:true, why:`Access Analyzer examines resource policies and reports resources that can be accessed from outside your account or organization.`},
+    {t:`Amazon CloudWatch`, ok:false, why:`CloudWatch handles metrics, logs and alarms, not access analysis.`},
+    {t:`AWS Cost Explorer`, ok:false, why:`Cost Explorer analyzes spending.`},
+    {t:`Amazon Route 53`, ok:false, why:`Route 53 is DNS.`}
+   ]},
+  {q:`An EC2 instance was terminated yesterday and nobody admits doing it. Which service shows who made the API call?`,
+   options:[
+    {t:`AWS CloudTrail`, ok:true, why:`CloudTrail records API calls with who made them, when and from where. Look for the TerminateInstances event.`},
+    {t:`Amazon CloudWatch`, ok:false, why:`CloudWatch shows metrics and logs (like CPU usage), not who called which API.`},
+    {t:`AWS Config`, ok:false, why:`Config shows how a resource's configuration changed over time (and links to the CloudTrail event), but CloudTrail is the record of who made the call.`},
+    {t:`IAM credential report`, ok:false, why:`The credential report lists users and the status of their passwords and keys. It doesn't show actions.`}
+   ]},
+  {q:`Developers must be able to create IAM roles for their Lambda functions, but must not be able to create roles more powerful than their own access (privilege escalation). What should be used?`,
+   options:[
+    {t:`Require a permissions boundary on every role the developers create`, ok:true, why:`A permissions boundary caps the maximum permissions an identity can have. Requiring it on new roles means developers can create roles freely, but never more powerful than the boundary.`},
+    {t:`Give developers AdministratorAccess`, ok:false, why:`That removes every limit, the opposite of the goal.`},
+    {t:`Use an SCP`, ok:false, why:`SCPs apply to whole accounts or OUs. They can't express 'roles created by developers must stay below X'.`},
+    {t:`Deny all IAM actions to developers`, ok:false, why:`Then they can't create the roles their Lambda functions need.`}
+   ]}
+ ]
+},
+{
+ title:`Networking: VPC & gateways`, sub:`Private networks and how traffic gets in and out`,
+ lessons:[
+ {
+  title:`VPC, IP ranges and subnets`,
+  body:`<p>A <strong>VPC</strong> (Virtual Private Cloud) is your own private network inside one Region. Nothing can get in or out until you add the pieces that allow it, which is what this whole module is about.</p>
+<p>When you create a VPC, you give it a range of private IP addresses written in <strong>CIDR</strong> notation, like <code>10.0.0.0/16</code>. The number after the slash says how many bits are fixed; the rest are free for addresses. Smaller number = bigger range:</p>
+<div class="tablewrap"><table><thead><tr><th>CIDR</th><th>Addresses</th><th>Typical use</th></tr></thead><tbody>
+<tr><td><code>/16</code></td><td>65,536</td><td>A whole VPC (the largest allowed)</td></tr>
+<tr><td><code>/24</code></td><td>256</td><td>One subnet</td></tr>
+<tr><td><code>/28</code></td><td>16</td><td>The smallest subnet allowed</td></tr>
+</tbody></table></div>
+<p>You then split the VPC into <strong>subnets</strong>. Each subnet gets a slice of the VPC's range and lives in exactly <strong>one AZ</strong>; a subnet can never span AZs. AWS reserves <strong>5 addresses in every subnet</strong> (the first four and the last one) for routing, DNS and future use, so a <code>/24</code> subnet gives you 251 usable addresses, not 256.</p>
+<p>Every Region also comes with a <strong>default VPC</strong> that has a public subnet in each AZ, so you can launch things immediately. Real workloads normally use custom VPCs.</p>`,
+  example:`<p>A typical production layout: VPC <code>10.0.0.0/16</code> across 3 AZs, with 6 subnets: one public and one private in each AZ, e.g. <code>10.0.1.0/24</code> (public, AZ a), <code>10.0.11.0/24</code> (private, AZ a), and so on. Load balancers go in the public subnets; app servers and databases in the private ones.</p>`,
+  checks:[
+  {q:`A team wants a single subnet that spans all three Availability Zones, so instances can be placed anywhere. Is this possible?`,
+   options:[
+    {t:`Yes, if the subnet is large enough`, ok:false, why:`Size doesn't matter. Subnets are always tied to one AZ.`},
+    {t:`No, each subnet lives in exactly one AZ; you create one subnet per AZ`, ok:true, why:`To spread across AZs, you create a subnet in each AZ and place instances (or let Auto Scaling place them) across those subnets.`},
+    {t:`Yes, but only in the default VPC`, ok:false, why:`The default VPC also has one subnet per AZ.`},
+    {t:`No, a VPC can only use one AZ`, ok:false, why:`A VPC spans all AZs in its Region. It's subnets that are limited to one AZ.`}
+   ]},
+  {q:`An architect needs a subnet with at least 250 usable IP addresses for instances. Which is the smallest subnet size that works?`,
+   options:[
+    {t:`/24`, ok:true, why:`A /24 has 256 addresses. AWS reserves 5, leaving 251 usable, which is enough.`},
+    {t:`/25`, ok:false, why:`A /25 has 128 addresses (123 usable). Too small.`},
+    {t:`/28`, ok:false, why:`A /28 has only 16 addresses (11 usable). It's the smallest subnet AWS allows.`},
+    {t:`/16`, ok:false, why:`A /16 works, with over 65,000 addresses, but it's far from the smallest that fits, and it would use up the entire VPC range.`}
+   ]}
+  ]
+ },
+ {
+  title:`Route tables, internet gateway, public vs private`,
+  body:`<p>Every subnet is associated with a <strong>route table</strong>: a list of rules saying "traffic for this IP range goes to that target." Every route table automatically has a <strong>local</strong> route, so all subnets in a VPC can reach each other.</p>
+<p>An <strong>internet gateway (IGW)</strong> connects a VPC to the internet, in both directions. You attach one per VPC. It's managed by AWS, highly available across all AZs and free.</p>
+<p>What makes a subnet <strong>public</strong> is one route: <code>0.0.0.0/0 → igw-...</code> ("everything that isn't local goes to the internet gateway"). A subnet without that route is <strong>private</strong>. There's no checkbox; it's purely the route table.</p>
+<p>An instance in a public subnet also needs a <strong>public IP address</strong> to be reachable. It can get a random one automatically at launch, or you attach an <strong>Elastic IP</strong>: a static public IPv4 address you keep until you release it, which you can move between instances. (AWS charges for public IPv4 addresses, so use them only where needed.)</p>`,
+  example:`<div class="tablewrap"><table><thead><tr><th>Destination</th><th>Target</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>10.0.0.0/16</code></td><td>local</td><td>Traffic inside the VPC stays inside</td></tr>
+<tr><td><code>0.0.0.0/0</code></td><td><code>igw-0abc</code></td><td>Everything else goes to the internet</td></tr>
+</tbody></table></div><p>This is a public subnet's route table. A private subnet's table would have the local route, and either nothing else or a route to a NAT gateway (next lesson).</p>`,
+  checks:[
+  {q:`An EC2 instance is in a subnet whose route table sends 0.0.0.0/0 to an internet gateway, and its security group allows HTTPS from anywhere. Users still can't reach it from the internet. What is the most likely cause?`,
+   options:[
+    {t:`The instance has no public IP address or Elastic IP`, ok:true, why:`The route makes the subnet public, but the instance itself needs a public address for internet traffic to reach it. Assign a public IP or attach an Elastic IP.`},
+    {t:`The VPC needs a second internet gateway`, ok:false, why:`A VPC can only have one internet gateway, and it's already highly available.`},
+    {t:`The subnet must be in the default VPC`, ok:false, why:`Custom VPCs work exactly the same way once routes and public IPs are in place.`},
+    {t:`Internet gateways only allow outbound traffic`, ok:false, why:`Internet gateways allow both directions. Outbound-only is what a NAT gateway does.`}
+   ]},
+  {q:`What makes a subnet "public"?`,
+   options:[
+    {t:`A checkbox in the subnet settings`, ok:false, why:`There's no such setting. (There's an option to auto-assign public IPs, but that alone doesn't make the subnet public.)`},
+    {t:`Its route table has a route to an internet gateway`, ok:true, why:`That single route (usually 0.0.0.0/0 → IGW) is the definition of a public subnet.`},
+    {t:`It contains a NAT gateway`, ok:false, why:`NAT gateways are placed in public subnets, but they don't make a subnet public; the route to the IGW does.`},
+    {t:`It uses a /24 CIDR block`, ok:false, why:`Size has nothing to do with it.`}
+   ]}
+  ]
+ },
+ {
+  title:`NAT gateway: outbound-only internet`,
+  body:`<p>Servers in private subnets often need to reach the internet <em>outward</em> (download patches, call a partner API) without anyone on the internet being able to reach <em>in</em>. That's what a <strong>NAT gateway</strong> does. NAT (Network Address Translation) swaps the server's private IP for the NAT gateway's public IP on the way out, and maps replies back.</p>
+<p>How it's set up:</p>
+<ol><li>The NAT gateway sits in a <strong>public</strong> subnet (it needs the route to the internet gateway itself) and has an Elastic IP.</li>
+<li>The <strong>private</strong> subnets' route tables send <code>0.0.0.0/0 → nat-...</code>.</li></ol>
+<p>Key facts for the exam:</p>
+<ul><li>A NAT gateway is <strong>zonal</strong>: it lives in one AZ. For resilience, create <strong>one per AZ</strong> and route each private subnet to the NAT gateway in its own AZ.</li>
+<li>It's managed and scales automatically (up to 100 Gbps). You pay per hour plus per GB processed, so heavy traffic through NAT gets expensive.</li>
+<li>A <strong>NAT instance</strong> is the old way: an EC2 instance you configure yourself. On the exam it's almost always the wrong answer.</li>
+<li>For <strong>IPv6</strong>, addresses are public anyway, so outbound-only access uses an <strong>egress-only internet gateway</strong> instead.</li>
+<li>All outbound traffic leaves with the NAT gateway's Elastic IP, which is handy when a partner needs to whitelist your IP.</li></ul>`,
+  example:`<p>App servers in private subnets in 3 AZs need OS updates. Create a NAT gateway in the public subnet of each AZ; each private subnet routes 0.0.0.0/0 to its own AZ's NAT gateway. If one AZ fails, the other two keep their internet access.</p>`,
+  checks:[
+  {q:`Where must a NAT gateway be placed so that private instances can reach the internet?`,
+   options:[
+    {t:`In a private subnet, next to the instances`, ok:false, why:`The NAT gateway itself needs internet access through the internet gateway, which only a public subnet has.`},
+    {t:`In a public subnet, with private subnets routing 0.0.0.0/0 to it`, ok:true, why:`The NAT gateway uses the public subnet's route to the IGW; private subnets send their internet-bound traffic to the NAT gateway.`},
+    {t:`Outside the VPC, at the Region level`, ok:false, why:`NAT gateways are created inside a subnet of your VPC.`},
+    {t:`Attached directly to the internet gateway`, ok:false, why:`They're separate resources; the NAT gateway reaches the IGW through its subnet's route table.`}
+   ]},
+  {q:`Instances with IPv6 addresses must initiate connections to the internet, but must not accept connections started from the internet. What should be used?`,
+   options:[
+    {t:`A NAT gateway`, ok:false, why:`NAT gateways translate IPv4 addresses. IPv6 has its own dedicated solution.`},
+    {t:`An egress-only internet gateway`, ok:true, why:`It's the IPv6 equivalent of NAT behavior: outbound connections and their replies are allowed, while connections started from the internet are blocked.`},
+    {t:`A regular internet gateway`, ok:false, why:`An internet gateway allows traffic in both directions, so instances could be reached from the internet.`},
+    {t:`A gateway VPC endpoint`, ok:false, why:`Gateway endpoints give private access to S3 and DynamoDB only, not to the internet.`}
+   ]}
+  ]
+ },
+ {
+  title:`Security groups vs network ACLs`,
+  body:`<p>AWS gives you two firewalls that work at different levels:</p>
+<div class="tablewrap"><table><thead><tr><th></th><th>Security group (SG)</th><th>Network ACL (NACL)</th></tr></thead><tbody>
+<tr><td>Attached to</td><td>An instance's network interface</td><td>A whole subnet</td></tr>
+<tr><td>Rules</td><td>Allow only</td><td>Allow AND deny</td></tr>
+<tr><td>State</td><td><strong>Stateful</strong>: replies are allowed automatically</td><td><strong>Stateless</strong>: replies need their own rule</td></tr>
+<tr><td>Evaluation</td><td>All rules together</td><td>In number order; first match wins</td></tr>
+<tr><td>Default</td><td>Deny all inbound, allow all outbound</td><td>Default NACL allows everything; a new custom NACL denies everything</td></tr>
+</tbody></table></div>
+<p><strong>Stateful vs stateless</strong> is tested a lot. When a client connects to your server on port 443, the reply goes back to a random high port on the client, called an <strong>ephemeral port</strong> (1024–65535). A security group remembers the connection and lets the reply out. A NACL doesn't remember, so its <em>outbound</em> rules must allow ephemeral ports or the reply is dropped.</p>
+<p>A powerful security group feature: a rule can allow traffic from <strong>another security group</strong> instead of an IP range. That means "anything carrying security group X may connect," which keeps working as instances come and go.</p>
+<p>To troubleshoot traffic, <strong>VPC Flow Logs</strong> record which connections were accepted or rejected, sent to CloudWatch Logs or S3.</p>`,
+  example:`<p>Three-tier app. ALB security group: allow 443 from <code>0.0.0.0/0</code>. App security group: allow 8080 only from the ALB's security group. Database security group: allow 5432 only from the app security group. Nothing in the database tier can be reached from anywhere else, no matter how many app servers Auto Scaling adds.</p>`,
+  checks:[
+  {q:`A database must accept connections only from the application servers. The application servers are in an Auto Scaling group, so their IP addresses change constantly. What is the BEST way to allow this?`,
+   options:[
+    {t:`In the database security group, allow the app servers' current IP addresses and update them on every scaling event`, ok:false, why:`It works briefly, but every scale-out breaks it, and you'd need automation to keep updating the rules.`},
+    {t:`In the database security group, allow the database port from the application servers' security group`, ok:true, why:`Referencing the security group means any instance that carries it is allowed, whatever its IP. New instances launched by Auto Scaling get the same security group, so they work automatically.`},
+    {t:`Use a NACL rule that allows the whole VPC CIDR`, ok:false, why:`That lets every resource in the VPC reach the database, not just the app servers. Too broad.`},
+    {t:`Put the database in a public subnet`, ok:false, why:`That makes it more exposed, not less, and doesn't restrict access to the app servers.`}
+   ]},
+  {q:`A custom NACL allows inbound TCP 443 from anywhere and outbound TCP 443 to anywhere. Users connecting to a web server in that subnet get timeouts, but the security group is correct. What is wrong?`,
+   options:[
+    {t:`NACLs are stateless; the outbound rules must also allow the ephemeral ports (1024–65535) for replies`, ok:true, why:`Replies to the users go to their random high ports, not to 443. The NACL doesn't track connections, so it blocks those replies unless an outbound rule allows the ephemeral port range.`},
+    {t:`Security groups override NACLs`, ok:false, why:`Neither overrides the other. Traffic must pass BOTH the NACL (subnet level) and the security group (instance level).`},
+    {t:`NACLs can't allow port 443`, ok:false, why:`NACLs can allow any port.`},
+    {t:`The NACL needs a deny rule for everything else`, ok:false, why:`Anything not explicitly allowed is already denied by the NACL's final catch-all rule. Adding more denies won't help replies get out.`}
+   ]}
+  ]
+ },
+ {
+  title:`VPC endpoints: reaching AWS services privately`,
+  body:`<p>Services like S3, DynamoDB, SQS or Secrets Manager live <em>outside</em> your VPC, on public AWS addresses. Without anything else, private instances need a NAT gateway (and the internet path) to reach them. <strong>VPC endpoints</strong> give a private path instead. There are two kinds, and the exam loves the difference:</p>
+<div class="tablewrap"><table><thead><tr><th></th><th>Gateway endpoint</th><th>Interface endpoint (PrivateLink)</th></tr></thead><tbody>
+<tr><td>Services</td><td>Only S3 and DynamoDB</td><td>Almost every AWS service (S3 included) and partner services</td></tr>
+<tr><td>How it works</td><td>An entry in your route tables</td><td>A network interface (ENI) with a private IP in your subnet</td></tr>
+<tr><td>Cost</td><td>Free</td><td>Per hour per AZ, plus per GB</td></tr>
+<tr><td>Reachable from on-premises, peered VPCs or a transit gateway</td><td>No</td><td>Yes, it's just a private IP</td></tr>
+</tbody></table></div>
+<p>You can attach an <strong>endpoint policy</strong> to restrict what goes through it, e.g. "only these buckets."</p>
+<p>PrivateLink also works in the other direction: you can publish <em>your own</em> service (behind a Network Load Balancer) as an <strong>endpoint service</strong>. Other VPCs, even in other accounts with overlapping IP ranges, create interface endpoints to consume it privately. That's how SaaS companies offer private connectivity to customers.</p>`,
+  example:`<p>Decision path: Is the caller inside the VPC and the target S3 or DynamoDB? Gateway endpoint (free). Is the caller on-premises or in another network, or is the target any other service? Interface endpoint.</p>`,
+  checks:[
+  {q:`On-premises servers connected through Direct Connect must reach Amazon S3 over private IP addresses only. Which endpoint type works?`,
+   options:[
+    {t:`A gateway endpoint for S3`, ok:false, why:`Gateway endpoints are route-table entries inside the VPC. Traffic coming from on-premises can't use them; there's no IP address to send it to.`},
+    {t:`An interface endpoint for S3`, ok:true, why:`The interface endpoint is a private IP in your subnet, reachable over Direct Connect like any other VPC address.`},
+    {t:`A NAT gateway`, ok:false, why:`NAT sends traffic out to S3's public endpoints via the internet.`},
+    {t:`An egress-only internet gateway`, ok:false, why:`That's outbound internet access for IPv6, not a private path to S3.`}
+   ]},
+  {q:`A SaaS company wants hundreds of customers to reach its API privately from their own VPCs. Many customers use the same IP range (10.0.0.0/16) as the company. What should the company use?`,
+   options:[
+    {t:`VPC peering with each customer`, ok:false, why:`Peering doesn't work between VPCs with overlapping IP ranges, and hundreds of peerings would be unmanageable.`},
+    {t:`A PrivateLink endpoint service behind a Network Load Balancer`, ok:true, why:`Customers create interface endpoints in their own VPCs that connect to the service. Only that one service is exposed, and overlapping IP ranges don't matter, because each side only sees a local private IP.`},
+    {t:`A transit gateway shared with all customers`, ok:false, why:`A transit gateway would connect whole networks together (far more access than needed) and also can't route between overlapping IP ranges.`},
+    {t:`A public endpoint protected by a security group`, ok:false, why:`That's over the internet, not private.`}
+   ]}
+  ]
+ },
+ {
+  title:`Connecting VPCs: peering vs Transit Gateway`,
+  body:`<p>VPCs are isolated from each other by default. Two ways to connect them:</p>
+<p><strong>VPC peering</strong> is a private connection between exactly two VPCs (same or different accounts, same or different Regions). You add routes on both sides. There's no hourly charge. Its limits are what the exam tests:</p>
+<ul><li><strong>Not transitive:</strong> if A peers with B and B peers with C, A can't reach C through B. Every pair needs its own peering.</li>
+<li><strong>No overlapping IP ranges:</strong> two VPCs that both use 10.0.0.0/16 can't peer.</li></ul>
+<p><strong>AWS Transit Gateway (TGW)</strong> is a regional hub, like a central router. Each VPC, VPN connection or Direct Connect gateway attaches once, and everything attached can reach everything else (routing is transitive). Its own route tables let you segment traffic, e.g. dev VPCs can't reach prod. Transit gateways in different Regions can peer with each other. You pay per attachment per hour plus per GB. Share it across accounts with AWS RAM.</p>
+<p>Rule of thumb: <strong>a few VPCs → peering; many VPCs and/or on-premises → Transit Gateway.</strong></p>`,
+  example:`<p>Full mesh of 10 VPCs with peering: 10×9/2 = 45 peering connections, each with routes on both sides. With a transit gateway: 10 attachments, one place to manage routing.</p>`,
+  checks:[
+  {q:`VPC A is peered with VPC B, and VPC B is peered with VPC C. Instances in A can't reach instances in C. Why?`,
+   options:[
+    {t:`VPC peering is not transitive; A and C need their own peering connection (or a transit gateway)`, ok:true, why:`Peering only connects the two VPCs involved. Traffic can't pass through B to reach C.`},
+    {t:`Peering only works within the same account`, ok:false, why:`Peering works across accounts and even across Regions.`},
+    {t:`B's security group is blocking the traffic`, ok:false, why:`Security groups don't route traffic onward; routing through B simply isn't possible with peering.`},
+    {t:`A needs an internet gateway`, ok:false, why:`Peering traffic is private and doesn't use internet gateways.`}
+   ]},
+  {q:`Two VPCs both use the CIDR 10.0.0.0/16, and they need to communicate. Can they use VPC peering?`,
+   options:[
+    {t:`Yes, peering handles overlapping ranges automatically`, ok:false, why:`It doesn't: with identical ranges, routes can't tell which VPC an address belongs to.`},
+    {t:`No, peering requires non-overlapping CIDR ranges`, ok:true, why:`Peered VPCs must have distinct IP ranges. You'd re-address one VPC, or expose specific services through PrivateLink instead.`},
+    {t:`Yes, if they're in different Regions`, ok:false, why:`The overlap rule applies regardless of Region.`},
+    {t:`Yes, if both VPCs are in the same account`, ok:false, why:`The overlap rule applies regardless of account.`}
+   ]}
+  ]
+ },
+ {
+  title:`Hybrid: Site-to-Site VPN and Direct Connect`,
+  body:`<p>Two ways to connect your own data center or office to AWS:</p>
+<div class="tablewrap"><table><thead><tr><th></th><th>Site-to-Site VPN</th><th>Direct Connect (DX)</th></tr></thead><tbody>
+<tr><td>Path</td><td>Encrypted IPsec tunnels over the public internet</td><td>Dedicated private physical line</td></tr>
+<tr><td>Setup time</td><td>Minutes to hours</td><td>Weeks to months (a physical circuit)</td></tr>
+<tr><td>Performance</td><td>Up to about 1.25 Gbps per tunnel, varies with the internet</td><td>Consistent latency; from 50 Mbps up to 100+ Gbps</td></tr>
+<tr><td>Encryption</td><td>Always encrypted</td><td>Not encrypted by default</td></tr>
+<tr><td>Cost</td><td>Low</td><td>Higher (port hours, partner circuits)</td></tr>
+</tbody></table></div>
+<p>A VPN has two ends. On AWS's side: a <strong>virtual private gateway (VGW)</strong> attached to one VPC, or a transit gateway. On your side: a <strong>customer gateway (CGW)</strong>, which is the AWS resource describing your physical router (its public IP and routing settings). Each VPN connection comes with two tunnels for redundancy.</p>
+<p>Common exam combinations:</p>
+<ul><li><strong>Cheap backup for Direct Connect:</strong> a Site-to-Site VPN. With BGP routing, traffic prefers DX and fails over to the VPN automatically.</li>
+<li><strong>Encryption over Direct Connect:</strong> run a VPN over the DX connection (or use MACsec where supported).</li>
+<li><strong>One DX to VPCs in several Regions:</strong> a <strong>Direct Connect gateway</strong>.</li>
+<li><strong>Maximum resilience for DX:</strong> two DX connections at two different DX locations.</li>
+<li><strong>Individual remote employees</strong> (laptops, not offices): <strong>AWS Client VPN</strong>.</li></ul>`,
+  example:`<p>A company needs connectivity to AWS next week, with encryption: Site-to-Site VPN. Later, it moves 50 TB a month and needs predictable performance: it orders Direct Connect and keeps the VPN as the backup.</p>`,
+  checks:[
+  {q:`A company needs an encrypted connection between its office and a VPC within two days, at low cost. What should it use?`,
+   options:[
+    {t:`AWS Direct Connect`, ok:false, why:`DX takes weeks or months to provision, costs more, and isn't encrypted by default.`},
+    {t:`AWS Site-to-Site VPN`, ok:true, why:`A VPN can be set up in hours, is always encrypted with IPsec, and costs little.`},
+    {t:`VPC peering`, ok:false, why:`Peering connects two VPCs, not an office to a VPC.`},
+    {t:`An internet gateway`, ok:false, why:`An internet gateway connects the VPC to the public internet, with no private, encrypted link to the office.`}
+   ]},
+  {q:`A company uses Direct Connect, and a new compliance rule requires all traffic over it to be encrypted. What should it do?`,
+   options:[
+    {t:`Nothing; Direct Connect is encrypted by default`, ok:false, why:`DX is private, but it isn't encrypted by default. Private and encrypted are different things.`},
+    {t:`Run an IPsec Site-to-Site VPN over the Direct Connect connection`, ok:true, why:`The VPN encrypts the traffic while it still travels over the dedicated DX line, keeping DX's consistent performance. (MACsec is another option on supported connections.)`},
+    {t:`Enable SSE-KMS on all S3 buckets`, ok:false, why:`That encrypts data at rest in S3, not data in transit over the network link.`},
+    {t:`Replace Direct Connect with an internet gateway`, ok:false, why:`That removes the private connection entirely.`}
+   ]}
+  ]
+ }
+ ],
+ quiz:[
+  {q:`Web servers currently run in public subnets with public IPs behind an Application Load Balancer. Security wants the web servers to be unreachable directly from the internet while the website keeps working. What should a solutions architect do?`,
+   options:[
+    {t:`Move the web servers to private subnets, keep the ALB in public subnets, and allow web traffic to the servers only from the ALB's security group`, ok:true, why:`The ALB is the only internet-facing component. Servers in private subnets have no public IPs and no route from the internet, and their security group only accepts the ALB.`},
+    {t:`Keep the servers in public subnets but remove the ALB`, ok:false, why:`That exposes the servers even more directly.`},
+    {t:`Move the ALB to private subnets too`, ok:false, why:`An internal ALB in private subnets can't receive traffic from the internet, so the website would stop working.`},
+    {t:`Add a NAT gateway in front of the web servers`, ok:false, why:`NAT gateways handle outbound traffic from private instances; they don't receive inbound web traffic.`}
+   ]},
+  {q:`A development VPC uses private subnets in three AZs. The instances occasionally download packages from the internet. Losing internet access during a rare AZ outage is acceptable. What is the MOST cost-effective setup?`,
+   options:[
+    {t:`One NAT gateway in a single AZ, used by all private subnets`, ok:true, why:`One NAT gateway per AZ is the resilient design, but here resilience isn't required and cost is the qualifier. One NAT gateway costs a third of three. (Cross-AZ traffic adds small data charges, but occasional downloads keep that minor.)`},
+    {t:`One NAT gateway per AZ`, ok:false, why:`Most resilient, but you pay hourly for three NAT gateways when the scenario explicitly accepts the AZ risk.`},
+    {t:`An internet gateway route in every private subnet`, ok:false, why:`That makes the subnets public and exposes the instances, a security change, not a cost optimization.`},
+    {t:`A Direct Connect connection`, ok:false, why:`DX connects your data center to AWS; it doesn't provide internet access, and it's expensive.`}
+   ]},
+  {q:`A Lambda function runs in a VPC's private subnets with no NAT gateway. It must read from S3 and write to DynamoDB without any traffic going over the internet, at the lowest cost. What should be done?`,
+   options:[
+    {t:`Create gateway endpoints for S3 and DynamoDB`, ok:true, why:`Gateway endpoints exist for exactly these two services. They're free, private, and work for anything inside the VPC, including Lambda functions.`},
+    {t:`Add a NAT gateway`, ok:false, why:`It would work, but traffic goes to public endpoints over the internet and you pay per hour and per GB.`},
+    {t:`Create interface endpoints for S3 and DynamoDB`, ok:false, why:`They'd work and stay private, but they're charged per hour per AZ plus per GB. Gateway endpoints do the same here for free.`},
+    {t:`Attach an internet gateway to the VPC`, ok:false, why:`An internet gateway alone doesn't help private subnets, and it would send traffic over the internet anyway.`}
+   ]},
+  {q:`An administrator can't SSH into an instance. The security group allows inbound port 22 from the office IP. The subnet's custom NACL allows inbound port 22 from the office IP and outbound ports 80 and 443 only. What should be changed?`,
+   options:[
+    {t:`Allow outbound ephemeral ports (1024–65535) to the office IP in the NACL`, ok:true, why:`The NACL is stateless: the SSH reply goes back to the administrator's random high port, which the outbound rules (80 and 443 only) block.`},
+    {t:`Allow outbound port 22 in the security group`, ok:false, why:`Security groups are stateful: if inbound 22 is allowed, the reply is allowed automatically.`},
+    {t:`Add a deny rule for all other traffic in the NACL`, ok:false, why:`Everything not allowed is already denied; more denies won't let the reply out.`},
+    {t:`Attach an Elastic IP`, ok:false, why:`Nothing suggests an addressing problem: the traffic reaches the instance and the reply is what gets blocked.`}
+   ]},
+  {q:`A company has a single Direct Connect connection in eu-west-1. It now has VPCs in both eu-west-1 and us-east-1, and both must be reachable from the data center over the existing connection. What should it use?`,
+   options:[
+    {t:`A Direct Connect gateway associated with the VPCs in both Regions`, ok:true, why:`A Direct Connect gateway lets one DX connection reach VPCs in multiple Regions.`},
+    {t:`A second Direct Connect connection in us-east-1`, ok:false, why:`It would work, but it adds a new physical circuit when the requirement is to use the existing one.`},
+    {t:`VPC peering between the two VPCs`, ok:false, why:`Peering connects the VPCs to each other, but on-premises traffic can't transit through a peering connection to reach the second VPC.`},
+    {t:`AWS Global Accelerator`, ok:false, why:`Global Accelerator speeds up internet users' traffic to your applications. It isn't for private data center connectivity.`}
+   ]},
+  {q:`Applications in private subnets call a partner's API. The partner only accepts requests from a fixed list of IP addresses. What should a solutions architect do?`,
+   options:[
+    {t:`Route outbound traffic through a NAT gateway and give the partner the NAT gateway's Elastic IP`, ok:true, why:`All outbound traffic through the NAT gateway leaves with its Elastic IP, which never changes, so the partner whitelists one address (one per NAT gateway if you have several).`},
+    {t:`Give the partner the private IPs of the instances`, ok:false, why:`Private IPs aren't visible on the internet, and they change as instances are replaced.`},
+    {t:`Attach an Elastic IP to every instance and move them to public subnets`, ok:false, why:`It works, but it exposes the instances to the internet and breaks every time Auto Scaling adds a new instance.`},
+    {t:`Use an interface VPC endpoint for the partner's API`, ok:false, why:`Interface endpoints reach AWS services or PrivateLink endpoint services, not an arbitrary partner API on the internet.`}
+   ]},
+  {q:`An application in VPC A must call one internal service in VPC B, owned by another team in another account. Both VPCs use 10.0.0.0/16. Only that one service should be reachable. What is the BEST solution?`,
+   options:[
+    {t:`Expose the service through a PrivateLink endpoint service and create an interface endpoint in VPC A`, ok:true, why:`PrivateLink works with overlapping IP ranges and exposes only that one service, not the whole network.`},
+    {t:`VPC peering between A and B`, ok:false, why:`Peering doesn't work with overlapping CIDRs, and it would expose the whole VPC, not just one service.`},
+    {t:`Attach both VPCs to a transit gateway`, ok:false, why:`A transit gateway can't route between overlapping ranges, and it connects entire networks, which is more access than required.`},
+    {t:`Make the service public and restrict it with a security group`, ok:false, why:`Traffic would cross the internet, which isn't private.`}
+   ]},
+  {q:`A company has a Site-to-Site VPN to AWS and wants to know why some connections to an instance are being rejected. Which feature shows accepted and rejected traffic at the network level?`,
+   options:[
+    {t:`VPC Flow Logs`, ok:true, why:`Flow Logs record IP traffic to and from network interfaces, including whether security groups or NACLs accepted or rejected it.`},
+    {t:`AWS CloudTrail`, ok:false, why:`CloudTrail logs API calls (who changed a security group), not network packets.`},
+    {t:`AWS Config`, ok:false, why:`Config shows how the security group or NACL is configured, but not the traffic it accepted or rejected.`},
+    {t:`IAM Access Analyzer`, ok:false, why:`Access Analyzer checks policy-based access to resources, not network traffic.`}
+   ]}
+ ]
+},
+{title:`Compute: EC2, Auto Scaling, load balancers`, sub:`Coming next`, soon:true},
+{title:`Storage: S3, EBS, EFS, FSx`, sub:`Coming soon`, soon:true},
+{title:`Databases & caching`, sub:`Coming soon`, soon:true},
+{title:`Decoupling & streaming`, sub:`Coming soon`, soon:true},
+{title:`Serverless & containers`, sub:`Coming soon`, soon:true},
+{title:`Edge, DNS & global delivery`, sub:`Coming soon`, soon:true},
+{title:`Hybrid connectivity & migration`, sub:`Coming soon`, soon:true},
+{title:`Security services & encryption`, sub:`Coming soon`, soon:true},
+{title:`Monitoring & governance`, sub:`Coming soon`, soon:true},
+{title:`Analytics & AI/ML`, sub:`Coming soon`, soon:true},
+{title:`Resilience, DR & cost`, sub:`Coming soon`, soon:true}
+];
+
+const GLOSSARY = [
+["AZ","Availability Zone","One or more isolated data centers inside a Region.",1],
+["Region","AWS Region","A geographic area with several AZs, e.g. eu-central-1 (Frankfurt).",1],
+["Edge location","Point of presence","Small AWS site in a city, used by CloudFront, Route 53 and Global Accelerator.",1],
+["HA","High availability","Keeps working, maybe briefly degraded, when a component fails.",1],
+["IaC","Infrastructure as code","Defining infrastructure in template files instead of clicking in the console.",1],
+["CLI","Command Line Interface","The aws command for managing AWS from a terminal.",1],
+["SDK","Software Development Kit","AWS libraries for calling AWS from your code.",1],
+["CloudFormation","AWS CloudFormation","Infrastructure as code with YAML/JSON templates.",1],
+["Outposts","AWS Outposts","AWS-managed racks running AWS services in your own data center.",1],
+["Local Zone","AWS Local Zone","Small extension of a Region in a big city, for very low latency.",1],
+["IAM","Identity and Access Management","Users, groups, roles and policies controlling who can do what in AWS.",2],
+["MFA","Multi-factor authentication","A second login factor, like a code from a phone app or a hardware key.",2],
+["ARN","Amazon Resource Name","Unique ID of an AWS resource, e.g. arn:aws:s3:::my-bucket.",2],
+["STS","Security Token Service","Issues the temporary credentials used when a role is assumed.",2],
+["SCP","Service control policy","Organizations guardrail setting the maximum permissions for accounts.",2],
+["OU","Organizational unit","A folder of accounts inside AWS Organizations.",2],
+["RAM","Resource Access Manager","Shares resources (subnets, transit gateways...) between accounts.",2],
+["SSO","Single sign-on","Sign in once, access many systems. On AWS: IAM Identity Center.",2],
+["Cognito","Amazon Cognito","Sign-up/sign-in for your app's users, plus temporary AWS credentials for them.",2],
+["AD","Active Directory","Microsoft's corporate user directory; AWS Directory Service offers a managed one.",2],
+["VPC","Virtual Private Cloud","Your private, isolated network inside a Region.",3],
+["CIDR","Classless Inter-Domain Routing","Notation for IP address ranges, e.g. 10.0.0.0/16.",3],
+["IGW","Internet gateway","Connects a VPC to the internet in both directions.",3],
+["NAT","Network Address Translation","A NAT gateway lets private subnets reach the internet, outbound only.",3],
+["SG","Security group","Stateful firewall on an instance; allow rules only.",3],
+["NACL","Network access control list","Stateless firewall on a subnet; allow and deny rules.",3],
+["VGW","Virtual private gateway","The AWS end of a Site-to-Site VPN or Direct Connect for one VPC.",3],
+["CGW","Customer gateway","AWS resource describing your on-premises VPN router.",3],
+["TGW","Transit gateway","Central hub connecting many VPCs and on-premises networks.",3],
+["VPN","Virtual private network","Encrypted tunnel over the internet.",3],
+["PrivateLink","AWS PrivateLink","Technology behind interface endpoints: private-IP access to services.",3],
+["DX","AWS Direct Connect","Dedicated private physical line from your data center to AWS.",10],
+["BGP","Border Gateway Protocol","How networks exchange routes; used by Direct Connect and dynamic VPNs.",10],
+["EC2","Elastic Compute Cloud","Virtual servers.",4],
+["AMI","Amazon Machine Image","Template (OS + software) used to launch EC2 instances.",4],
+["ASG","Auto Scaling group","EC2 instances that grow, shrink and replace themselves automatically.",4],
+["ELB","Elastic Load Balancing","The load balancer family: ALB, NLB, GWLB.",4],
+["ALB","Application Load Balancer","Layer 7 (HTTP) load balancer with path and host routing.",4],
+["NLB","Network Load Balancer","Layer 4 (TCP/UDP) load balancer with static IPs and extreme performance.",4],
+["GWLB","Gateway Load Balancer","Routes traffic through third-party security appliances.",4],
+["S3","Simple Storage Service","Object storage for files, addressed by bucket and key.",5],
+["S3-IA","S3 Standard-Infrequent Access","Cheaper S3 storage with a fee per GB read.",5],
+["EBS","Elastic Block Store","Virtual hard drive for one EC2 instance, in one AZ.",5],
+["EFS","Elastic File System","Shared Linux (NFS) file system across AZs.",5],
+["FSx","Amazon FSx","Managed file systems: Windows File Server, Lustre, NetApp ONTAP, OpenZFS.",5],
+["NFS / SMB","File-sharing protocols","NFS is Linux file sharing; SMB is Windows file sharing.",5],
+["iSCSI","Internet SCSI","Protocol for block storage (disks) over a network.",5],
+["WORM","Write once, read many","Data that can't be changed or deleted, e.g. S3 Object Lock.",5],
+["RDS","Relational Database Service","Managed MySQL, PostgreSQL, MariaDB, Oracle, SQL Server.",6],
+["Aurora","Amazon Aurora","AWS's MySQL/PostgreSQL-compatible database; 6 copies across 3 AZs.",6],
+["DynamoDB","Amazon DynamoDB","Serverless NoSQL key-value database.",6],
+["DAX","DynamoDB Accelerator","In-memory cache for DynamoDB with microsecond reads.",6],
+["ElastiCache","Amazon ElastiCache","Managed in-memory cache (Redis, Valkey, Memcached).",6],
+["SQS","Simple Queue Service","Message queue; consumers pull messages.",7],
+["SNS","Simple Notification Service","Pub/sub; pushes each message to all subscribers.",7],
+["FIFO","First in, first out","SQS FIFO queues guarantee order and exactly-once processing.",7],
+["Kinesis","Amazon Kinesis Data Streams","Real-time data stream with multiple consumers and replay.",7],
+["Firehose","Amazon Data Firehose","Loads streaming data into S3, Redshift and more with no code.",7],
+["EventBridge","Amazon EventBridge","Event bus that routes events between services by rules.",7],
+["Lambda","AWS Lambda","Runs functions on events; no servers, pay per execution.",8],
+["API Gateway","Amazon API Gateway","Managed front door for REST, HTTP and WebSocket APIs.",8],
+["ECS","Elastic Container Service","AWS's own container orchestrator.",8],
+["EKS","Elastic Kubernetes Service","Managed Kubernetes.",8],
+["Fargate","AWS Fargate","Runs containers for ECS/EKS without managing servers.",8],
+["ECR","Elastic Container Registry","Stores Docker container images.",8],
+["CDN","Content delivery network","Caches content near users. On AWS: CloudFront.",9],
+["DNS","Domain Name System","Turns names like example.com into IP addresses. On AWS: Route 53.",9],
+["TTL","Time to live","How long a DNS answer or cached item is kept before refreshing.",9],
+["KMS","Key Management Service","Creates and controls encryption keys.",11],
+["SSE","Server-side encryption","S3 encrypting your data for you: SSE-S3, SSE-KMS, SSE-C.",11],
+["ACM","AWS Certificate Manager","Free SSL/TLS certificates for load balancers, CloudFront and API Gateway.",11],
+["WAF","Web Application Firewall","Blocks web attacks (SQL injection, bad IPs, request floods).",11],
+["Shield","AWS Shield","DDoS protection; Standard is free, Advanced is paid.",11],
+["GuardDuty","Amazon GuardDuty","Threat detection from logs (odd API calls, crypto mining...).",11],
+["Macie","Amazon Macie","Finds sensitive data (PII) in S3.",11],
+["Inspector","Amazon Inspector","Scans EC2, containers and Lambda for software vulnerabilities.",11],
+["CloudTrail","AWS CloudTrail","Audit log: who made which API call, and when.",12],
+["CloudWatch","Amazon CloudWatch","Metrics, logs and alarms.",12],
+["Config","AWS Config","Records resource configuration over time and checks compliance rules.",12],
+["SSM","AWS Systems Manager","Server management: patching, remote commands, Parameter Store.",12],
+["DMS","Database Migration Service","Migrates databases to AWS with minimal downtime.",10],
+["DataSync","AWS DataSync","Copies large amounts of data between on-premises and AWS.",10],
+["Snowball","AWS Snowball","Physical device shipped to you for offline transfer of huge datasets.",10],
+["Athena","Amazon Athena","Serverless SQL queries directly on files in S3.",13],
+["Glue","AWS Glue","Serverless ETL (data preparation) and data catalog.",13],
+["ETL","Extract, transform, load","Moving and reshaping data from sources into an analytics store.",13],
+["Redshift","Amazon Redshift","Data warehouse for analytics over very large datasets.",13],
+["EMR","Elastic MapReduce","Managed big-data clusters (Spark, Hadoop).",13],
+["QuickSight","Amazon QuickSight","Business intelligence dashboards.",13],
+["Bedrock","Amazon Bedrock","Generative AI foundation models through an API.",13],
+["SageMaker","Amazon SageMaker","Build, train and deploy your own ML models.",13],
+["RPO","Recovery point objective","How much data, measured in time, you can afford to lose.",14],
+["RTO","Recovery time objective","How long you can afford to be down.",14],
+["DR","Disaster recovery","Plans for recovering from big failures like a Region outage.",14],
+["Subnet","Subnet","A slice of a VPC's IP range inside one AZ; public or private.",3],
+["Route table","Route table","Rules deciding where traffic leaving a subnet goes.",3],
+["EIP","Elastic IP address","A static public IPv4 address you keep and can move between resources.",3],
+["Gateway endpoint","Gateway VPC endpoint","Free route-table entry for private access to S3 and DynamoDB from inside a VPC.",3],
+["Interface endpoint","Interface VPC endpoint","A private IP in your subnet for reaching a service through PrivateLink; paid.",3],
+["Peering","VPC peering","Private connection between two VPCs; not transitive, no overlapping ranges.",3],
+["Flow Logs","VPC Flow Logs","Records accepted and rejected IP traffic for troubleshooting.",3],
+["Egress-only IGW","Egress-only internet gateway","Outbound-only internet access for IPv6.",3],
+["ENI","Elastic network interface","A virtual network card with a private IP.",3],
+["Ephemeral ports","Ephemeral ports","Temporary high ports (1024–65535) that receive reply traffic.",3],
+["Client VPN","AWS Client VPN","VPN for individual users' devices, rather than whole offices.",3],
+["DX gateway","Direct Connect gateway","Lets one Direct Connect connection reach VPCs in several Regions.",3]
+].sort((a,b)=>a[0].localeCompare(b[0]));
+
+const LETTERS = ["A","B","C","D","E"];
+const KEY = "saa-course-v1";
+let S = load() || {m:0, l:0, view:"module", answers:{}, orders:{}};
+
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.answers && s.orders) return s; }catch(e){} return null; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function order(id, n){ if(!S.orders[id] || S.orders[id].length !== n){ S.orders[id] = shuffle([...Array(n).keys()]); save(); } return S.orders[id]; }
+function scrollTop(){ window.scrollTo({top:0}); }
+
+function lessonDone(m,l){ const L = COURSE[m].lessons[l]; return L.checks.every((_,i)=>S.answers[`${m}.${l}.${i}`] !== undefined); }
+function quizStats(m){
+  const Q = COURSE[m].quiz; let answered=0, right=0;
+  Q.forEach((q,i)=>{ const a = S.answers[`${m}.q.${i}`]; if(a!==undefined){ answered++; if(q.options[a].ok) right++; } });
+  return {answered, right, total:Q.length, done:answered===Q.length};
+}
+
+function qHTML(Q, id, label){
+  const ord = order(id, Q.options.length);
+  const picked = S.answers[id], answered = picked !== undefined;
+  return `<div class="q">
+    <p class="prompt"><span class="qlabel">${label}</span>${Q.q}</p>
+    <ul class="options">${ord.map((k,i)=>{
+      const o = Q.options[k];
+      let cls = "";
+      if(answered) cls = "locked " + (o.ok ? "correct" : (k===picked ? "picked-wrong" : "other"));
+      const verdict = o.ok ? (k===picked ? "Correct — your answer" : "Correct answer") : (k===picked ? "Wrong — your answer" : "Wrong");
+      return `<li class="opt ${cls}"><button data-q="${id}" data-k="${k}" ${answered?'tabindex="-1" aria-disabled="true"':""}><span class="letter">${LETTERS[i]}</span><span class="otext">${o.t}</span></button><div class="why"><span class="verdict">${verdict}</span>${o.why}</div></li>`;
+    }).join("")}</ul></div>`;
+}
+
+function renderNav(){
+  const sel = document.getElementById("modsel");
+  sel.innerHTML = COURSE.map((M,i)=>{
+    const st = !M.soon && quizStats(i).done ? ` ✓ ${quizStats(i).right}/${quizStats(i).total}` : "";
+    return `<option value="${i}" ${M.soon?"disabled":""} ${i===S.m && S.view!=="glossary"?"selected":""}>${i+1}. ${M.title}${M.soon?` (${M.sub.toLowerCase()})`:st}</option>`;
+  }).join("");
+  if(S.view==="glossary"){ sel.selectedIndex = -1; }
+  document.getElementById("glossaryBtn").setAttribute("aria-pressed", S.view==="glossary");
+}
+
+function render(){
+  renderNav();
+  const app = document.getElementById("app");
+  if(S.view === "glossary") return renderGlossary(app);
+  const M = COURSE[S.m], n = M.lessons.length;
+  const qs = quizStats(S.m);
+  const tabs = M.lessons.map((L,i)=>`<button class="tab ${lessonDone(S.m,i)?"done":""}" aria-current="${S.l===i}" data-l="${i}">${lessonDone(S.m,i)?"✓ ":""}${i+1}. ${L.title}</button>`).join("")
+    + `<button class="tab ${qs.done?"done":""}" aria-current="${S.l===n}" data-l="${n}">${qs.done?`✓ Quiz ${qs.right}/${qs.total}`:"Module quiz"}</button>`;
+
+  if(S.l < n){
+    const L = M.lessons[S.l];
+    app.innerHTML = `<nav class="tabs" aria-label="Lessons">${tabs}</nav>
+    <article class="card">
+      <div class="kicker">Module ${S.m+1}: ${M.title} · Lesson ${S.l+1} of ${n}</div>
+      <h2>${L.title}</h2>
+      <div class="body">${L.body}</div>
+      ${L.example?`<aside class="example"><strong>Example</strong>${L.example}</aside>`:""}
+    </article>
+    <section class="card"><h3>Check yourself</h3>${L.checks.map((Q,i)=>qHTML(Q, `${S.m}.${S.l}.${i}`, L.checks.length>1?`Q${i+1}. `:"")).join("")}</section>
+    <div class="actions">
+      <button class="btn ghost" data-l="${S.l-1}" ${S.l===0?"disabled":""}>Previous lesson</button>
+      <button class="btn" data-l="${S.l+1}">${S.l===n-1?"Go to module quiz":"Next lesson"}</button>
+    </div>`;
+  } else {
+    const nextReady = COURSE[S.m+1] && !COURSE[S.m+1].soon;
+    app.innerHTML = `<nav class="tabs" aria-label="Lessons">${tabs}</nav>
+    <article class="card">
+      <div class="kicker">Module ${S.m+1}: ${M.title}</div>
+      <h2>Module quiz</h2>
+      <p class="muted" style="margin:0">${qs.total} questions mixing everything in this module. Answer all of them to see your score.</p>
+    </article>
+    <section class="card">${M.quiz.map((Q,i)=>qHTML(Q, `${S.m}.q.${i}`, `${i+1}. `)).join("")}</section>
+    ${qs.done ? `<section class="card"><h3>Score: ${qs.right} of ${qs.total} (${Math.round(qs.right/qs.total*100)}%)</h3>
+      <p>${qs.right/qs.total>=0.8?"Solid. You're ready for the next module.":"Reread the explanations of the ones you missed, then retry. The options get reshuffled."}</p>
+      <div class="actions"><button class="btn ghost" id="retry">Retry quiz</button>${nextReady?`<button class="btn" data-module="${S.m+1}">Next module</button>`:`<span class="muted">The next module is coming soon.</span>`}</div></section>`
+    : `<p class="muted">${qs.answered} of ${qs.total} answered.</p>`}
+    <div class="actions"><button class="btn ghost" data-l="${n-1}">Back to last lesson</button></div>`;
+  }
+}
+
+function renderGlossary(app){
+  app.innerHTML = `<article class="card"><h2>Glossary</h2>
+    <p class="muted" style="margin:0 0 12px">Every abbreviation and service name used in the course. The module number shows where it's taught.</p>
+    <label for="gsearch" class="muted">Search</label>
+    <input type="search" id="gsearch" placeholder="e.g. NAT, KMS, gateway" autocomplete="off">
+    <dl class="gloss" id="glist"></dl></article>`;
+  const input = document.getElementById("gsearch");
+  const draw = () => {
+    const f = input.value.trim().toLowerCase();
+    const rows = GLOSSARY.filter(g => !f || g.slice(0,3).join(" ").toLowerCase().includes(f));
+    document.getElementById("glist").innerHTML = rows.length ? rows.map(g=>`<div><dt>${g[0]} <span>· ${g[1]}</span></dt><dd>${g[2]} <span class="tag">Module ${g[3]}</span></dd></div>`).join("") : `<p class="muted">No matches.</p>`;
+  };
+  input.addEventListener("input", draw);
+  draw();
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b || b.disabled) return;
+  if(b.dataset.q !== undefined){
+    if(S.answers[b.dataset.q] === undefined){ S.answers[b.dataset.q] = +b.dataset.k; save(); const y = window.scrollY; render(); window.scrollTo(0,y); }
+    return;
+  }
+  if(b.dataset.l !== undefined){ S.l = +b.dataset.l; S.view = "module"; save(); render(); scrollTop(); return; }
+  if(b.dataset.module !== undefined){ S.m = +b.dataset.module; S.l = 0; S.view = "module"; save(); render(); scrollTop(); return; }
+  if(b.id === "glossaryBtn"){ S.view = S.view === "glossary" ? "module" : "glossary"; save(); render(); scrollTop(); return; }
+  if(b.id === "retry"){
+    COURSE[S.m].quiz.forEach((_,i)=>{ delete S.answers[`${S.m}.q.${i}`]; delete S.orders[`${S.m}.q.${i}`]; });
+    save(); render(); scrollTop(); return;
+  }
+});
+document.getElementById("modsel").addEventListener("change", e => { S.m = +e.target.value; S.l = 0; S.view = "module"; save(); render(); scrollTop(); });
+
+if(!COURSE[S.m] || COURSE[S.m].soon){ S.m = 0; S.l = 0; }
+render();
+</script>
+</body>
+</html>
