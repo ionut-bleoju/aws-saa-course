@@ -5,6 +5,8 @@ window.SAA = window.SAA || {};
   SAA.catalog = [];   // all planned modules (content/catalog.js)
   SAA.glossary = [];
   SAA.addModule = m => SAA.modules.push(m);
+  SAA.bank = [];      // exam-style question bank (content/bank/*.js), unlocked per catalog module
+  SAA.addBank = list => SAA.bank.push(...list);
 
   SAA.DOMAINS = {
     secure: { name: "Secure architectures", short: "Secure", weight: 30 },
@@ -13,7 +15,7 @@ window.SAA = window.SAA || {};
     cost: { name: "Cost-optimized architectures", short: "Cost", weight: 20 },
   };
   SAA.NEXT = [1, 3, 7, 14, 21, 30];            // days until the next review, by stage
-  SAA.SESSION = { reviews: 10, explains: 1, newLessons: 2 };
+  SAA.SESSION = { reviews: 10, explains: 1, newLessons: 2, bankReviews: 8, bankNew: 4 };
   SAA.MOCKS = {
     mini: { n: 20, min: 40, label: "Mini mock", needModules: 3 },
     full: { n: 65, min: 130, label: "Full mock", needModules: Infinity },  // set to catalog length after load
@@ -33,6 +35,7 @@ window.SAA = window.SAA || {};
       l.concepts.forEach(c => { c.gid = `${m.id}.${c.id}`; c.lesson = l; c.module = m; SAA.conceptById[c.gid] = c; });
     }));
     SAA.MOCKS.full.needModules = SAA.catalog.length || Infinity;
+    SAA.bankById = {}; SAA.bank.forEach(b => SAA.bankById[b.id] = b);
   };
 
   // ---------- dates (whole days since epoch, local calendar) ----------
@@ -48,6 +51,7 @@ window.SAA = window.SAA || {};
     settings: { examDate: null, startDay: null, dayOffset: 0 },
     concepts: {},   // gid -> {stage, due, learned, hist:[{d,v,ok,k}], seen:{variant: day}}
     explains: {},   // lesson gid -> {stage, due, hist:[{d, score}]}
+    bank: {},       // bank question id -> {stage, due, hist:[{d, ok}]}
     lessons: {},    // lesson gid -> {step, done}
     ist: {},        // item UI state by key (answers), so reloads keep them
     session: null,
@@ -59,7 +63,7 @@ window.SAA = window.SAA || {};
     try { const s = JSON.parse(localStorage.getItem(SAA.KEY)); if (s && s.v === 2) return Object.assign(SAA.newState(), s); } catch (e) { }
     return SAA.newState();
   };
-  SAA.save = S => { try { localStorage.setItem(SAA.KEY, JSON.stringify(S)); } catch (e) { } };
+  SAA.save = S => { S.ts = Date.now(); try { localStorage.setItem(SAA.KEY, JSON.stringify(S)); } catch (e) { } };
 
   SAA.bump = (S, day, field) => { const a = S.activity[day] || (S.activity[day] = { items: 0, lessons: 0 }); a[field]++; };
 
@@ -87,6 +91,20 @@ window.SAA = window.SAA || {};
     if (full) { e.stage = Math.min(e.stage + 1, SAA.NEXT.length - 1); e.due = capDue(S, day, day + SAA.NEXT[e.stage] + 2); }
     else { e.stage = Math.max(0, e.stage - 1); e.due = day + 1; }
   };
+
+  // Bank questions: every answer counts (no lesson first), same intervals as concepts.
+  SAA.recordBank = (S, id, ok, day) => {
+    const b = S.bank[id] || (S.bank[id] = { stage: 0, due: day, hist: [] });
+    b.hist.push({ d: day, ok });
+    if (ok) { b.stage = Math.min(b.stage + 1, SAA.NEXT.length - 1); b.due = capDue(S, day, day + SAA.NEXT[b.stage]); }
+    else { b.stage = 0; b.due = day + 1; }
+  };
+  // A bank question unlocks once its module (the highest module it needs) is fully done.
+  SAA.bankUnlocked = S => { const done = new Set(SAA.completedModules(S).map(m => m.num)); return SAA.bank.filter(b => done.has(b.mod)); };
+  SAA.dueBank = (S, day) => Object.entries(S.bank)
+    .filter(([id, b]) => SAA.bankById[id] && b.due <= day && b.hist[b.hist.length - 1].d < day)
+    .sort((a, b) => a[1].due - b[1].due || a[1].stage - b[1].stage).map(([id]) => id);
+  SAA.newBank = (S, n) => SAA.bankUnlocked(S).filter(b => !S.bank[b.id]).slice(0, n).map(b => b.id);
 
   SAA.dueConcepts = (S, day, ahead = 0) => Object.entries(S.concepts)
     .filter(([g, c]) => SAA.conceptById[g] && c.learned < day && c.due <= day + ahead)
@@ -149,7 +167,10 @@ window.SAA = window.SAA || {};
     const left = due.length - reviews.length;
     const nNew = left > 15 ? 0 : left > 5 ? 1 : SAA.SESSION.newLessons;
     const lessons = SAA.nextLessons(S, nNew).map(l => ({ k: "lesson", l }));
-    return { day, items: [...reviews, ...explains, ...lessons], pos: 0, res: {}, due: due.length, held: SAA.SESSION.newLessons - nNew };
+    const bankDue = SAA.dueBank(S, day), bankOld = bankDue.slice(0, SAA.SESSION.bankReviews);
+    const bankNew = bankDue.length > SAA.SESSION.bankReviews ? [] : SAA.newBank(S, SAA.SESSION.bankNew);
+    const bank = SAA.shuffle([...bankOld, ...bankNew]).map(id => ({ k: "bank", id }));
+    return { day, items: [...reviews, ...bank, ...explains, ...lessons], pos: 0, res: {}, due: due.length, held: SAA.SESSION.newLessons - nNew, base: SAA.richness(S) };
   };
 
   SAA.moreReviews = (S, day) => {
@@ -231,5 +252,64 @@ window.SAA = window.SAA || {};
     for (let round = 0; items.length < cfg.n && order.some(p => p.vs.length > round); round++)
       order.forEach(p => { if (items.length < cfg.n && p.vs[round]) items.push({ g: p.g, v: p.vs[round].v }); });
     return { id: String(Date.now()), kind, day, start: Date.now(), min: cfg.min, items: SAA.shuffle(items), cur: 0, flag: {}, done: false };
+  };
+
+  // ---------- sync merge ----------
+  // How much progress a state holds; a session remembers the value it was built from.
+  SAA.richness = S => [S.concepts, S.explains, S.bank || {}].reduce((n, o) => n + Object.values(o).reduce((m, x) => m + x.hist.length, 0), 0)
+    + Object.values(S.lessons).filter(l => l.done).length;
+  // An untouched session built from less progress than we now have (e.g. on a fresh device before its first sync) gets rebuilt.
+  SAA.staleSession = S => { const s = S.session; return !!s && s.pos === 0 && !Object.keys(S.ist).some(k => k.startsWith(`S|${s.day}|`)) && (s.base ?? -1) < SAA.richness(S); };
+  // Combines progress from two devices without losing answers: histories are unioned and the schedule
+  // is replayed from them. `a` is this device (its view is kept), `b` the other one.
+  // JSON with sorted keys: two states with the same content compare equal whatever order their keys were added in.
+  SAA.canon = x => JSON.stringify(x, (k, v) => v && typeof v === "object" && !Array.isArray(v) ? Object.keys(v).sort().reduce((o, key) => (o[key] = v[key], o), {}) : v);
+  SAA.merge = (a, b) => {
+    const A = Object.assign(SAA.newState(), a), B = Object.assign(SAA.newState(), b);
+    const newer = (A.ts || 0) >= (B.ts || 0) ? A : B, older = newer === A ? B : A;
+    const M = SAA.newState();
+    M.view = A.view; M.ts = Math.max(A.ts || 0, B.ts || 0);
+    const sa = A.settings, sb = B.settings, sn = newer.settings, so = older.settings;
+    M.settings = Object.assign({}, so, sn, {
+      examDate: sn.examDate || so.examDate,
+      startDay: [sa.startDay, sb.startDay].filter(x => x != null).sort((x, y) => x - y)[0] ?? null,
+    });
+    const keys = (x, y) => [...new Set([...Object.keys(x), ...Object.keys(y)])];
+    const hkey = h => JSON.stringify(h);
+    const prefix = (x, y) => x.length <= y.length && x.every((h, i) => hkey(h) === hkey(y[i]));
+    // Records keyed by id with a hist array: take the longer one if one contains the other, else replay the union.
+    const byHist = (field, replay) => keys(A[field], B[field]).forEach(k => {
+      const x = A[field][k], y = B[field][k];
+      if (!x || !y) { M[field][k] = JSON.parse(JSON.stringify(x || y)); return; }
+      if (prefix(x.hist, y.hist)) { M[field][k] = JSON.parse(JSON.stringify(y)); return; }
+      if (prefix(y.hist, x.hist)) { M[field][k] = JSON.parse(JSON.stringify(x)); return; }
+      const seen = new Set(), all = [...x.hist, ...y.hist].filter(h => { const s = hkey(h); return !seen.has(s) && seen.add(s); });
+      // Same order whichever device merges, or the two would keep "fixing" each other's copy.
+      all.sort((p, q) => p.d - q.d || (p.k === "lesson" ? -1 : 0) - (q.k === "lesson" ? -1 : 0) || (hkey(p) < hkey(q) ? -1 : hkey(p) > hkey(q) ? 1 : 0))
+        .forEach(h => replay(k, h));
+    });
+    byHist("concepts", (g, h) => SAA.recordConcept(M, g, h.v, h.ok, h.k, h.d));
+    byHist("explains", (l, h) => SAA.recordExplain(M, l, h.score, h.d));
+    byHist("bank", (id, h) => SAA.recordBank(M, id, h.ok, h.d));
+    keys(A.lessons, B.lessons).forEach(g => {
+      const x = A.lessons[g] || {}, y = B.lessons[g] || {};
+      M.lessons[g] = Object.assign({}, x, y, { step: Math.max(x.step || 0, y.step || 0), done: !!(x.done || y.done) });
+    });
+    keys(A.activity, B.activity).forEach(d => {
+      const x = A.activity[d] || {}, y = B.activity[d] || {};
+      M.activity[d] = { items: Math.max(x.items || 0, y.items || 0), lessons: Math.max(x.lessons || 0, y.lessons || 0) };
+    });
+    const mocks = {};
+    [...older.mocks, ...newer.mocks].forEach(m => { const o = mocks[m.id]; if (!o || !o.done || m.done) mocks[m.id] = m; });
+    M.mocks = Object.values(mocks).sort((x, y) => x.start - y.start);
+    // Session: the later day wins; on the same day, the one further along. Its answers ("S|" keys) come only from that side.
+    const sx = A.session, sy = B.session;
+    const win = !sx ? B : !sy ? A : sx.day !== sy.day ? (sx.day > sy.day ? A : B) : sx.pos !== sy.pos ? (sx.pos > sy.pos ? A : B)
+      : (sx.base ?? -1) !== (sy.base ?? -1) ? ((sx.base ?? -1) > (sy.base ?? -1) ? A : B) : JSON.stringify(sx) >= JSON.stringify(sy) ? A : B;   // same on both devices, so they agree
+    M.session = win.session;
+    Object.assign(M.ist, older.ist, newer.ist);
+    Object.keys(M.ist).forEach(k => { if (k.startsWith("S|")) delete M.ist[k]; });
+    Object.keys(win.ist).forEach(k => { if (k.startsWith("S|")) M.ist[k] = win.ist[k]; });
+    return JSON.parse(JSON.stringify(M));
   };
 })(window.SAA);

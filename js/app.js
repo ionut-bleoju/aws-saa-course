@@ -3,7 +3,7 @@
   const esc = SAA.esc, P = SAA.policy;
   let S;
   const UI = { items: {}, explains: {}, gq: "", playTab: "tracer", playNet: "threeTier", playPol: "basics", playChal: 0, playNetChal: 0, confirm: null, msg: "", copied: null, exShort: null };
-  const save = () => SAA.save(S);
+  const save = () => { SAA.save(S); SAA.sync.changed(); };
   const today = () => SAA.today(S);
   const ist = key => S.ist[key] || (S.ist[key] = {});
   const pct = x => Math.max(0, Math.min(100, Math.round(x * 100)));
@@ -98,10 +98,10 @@ Please:
     h += paceCard();
     const rem = s.items.slice(s.pos);
     if (rem.length) {
-      const rv = rem.filter(x => x.k === "review").length, ex = rem.filter(x => x.k === "explain").length, ls = rem.filter(x => x.k === "lesson");
-      const mins = Math.max(5, Math.round(rv * 1.5 + ex * 4 + ls.length * 12));
+      const rv = rem.filter(x => x.k === "review").length, bq = rem.filter(x => x.k === "bank").length, ex = rem.filter(x => x.k === "explain").length, ls = rem.filter(x => x.k === "lesson");
+      const mins = Math.max(5, Math.round(rv * 1.5 + bq * 2 + ex * 4 + ls.length * 12));
       h += `<section class="card hero"><div class="kicker">${SAA.fmtDay(d)}</div><h3>${s.pos ? "Pick up where you left off" : "Today's session"}</h3>
-        <ul class="plan">${rv ? `<li><span class="pi">↻</span> ${plural(rv, "review")} <span class="muted small">mixed topics</span></li>` : ""}${ex ? `<li><span class="pi">✎</span> 1 explain-it-in-your-words</li>` : ""}${ls.map(x => `<li><span class="pi">+</span> New lesson: ${esc(SAA.lessonById[x.l].title)} <span class="muted small">Module ${SAA.lessonById[x.l].module.num}</span></li>`).join("")}</ul>
+        <ul class="plan">${rv ? `<li><span class="pi">↻</span> ${plural(rv, "review")} <span class="muted small">mixed topics</span></li>` : ""}${bq ? `<li><span class="pi">?</span> ${plural(bq, "exam-style question")} <span class="muted small">question bank</span></li>` : ""}${ex ? `<li><span class="pi">✎</span> 1 explain-it-in-your-words</li>` : ""}${ls.map(x => `<li><span class="pi">+</span> New lesson: ${esc(SAA.lessonById[x.l].title)} <span class="muted small">Module ${SAA.lessonById[x.l].module.num}</span></li>`).join("")}</ul>
         <p class="muted small">About ${mins} minutes.${s.pos ? ` ${s.pos} of ${s.items.length} done.` : ""}</p>
         ${s.held ? `<p class="note">${s.held === 2 ? "No new lessons" : "Only 1 new lesson"} today: ${s.due} reviews were due. Clearing them first stops you building on things you've started to forget. Whatever's left rolls over quietly.</p>` : ""}
         <button class="btn big" data-go="session">${s.pos ? "Continue" : "Start"}</button></section>`;
@@ -128,6 +128,14 @@ Please:
       const l = SAA.lessonById[it.l];
       return bar + `<article class="card"><div class="kicker">Explain it again · Module ${l.module.num}</div><h3>${esc(l.title)}</h3>
         ${explainHTML(l, key, score => { SAA.recordExplain(S, l.gid, score, d); SAA.bump(S, d, "items"); })}</article>${ist(key).saved ? nextBtn() : ""}`;
+    }
+    if (it.k === "bank") {
+      const b = SAA.bankById[it.id], bst = ist(key);
+      if (!b) { s.pos++; save(); return vSession(); }   // question removed from the bank since the session was built
+      let h = bar + `<article class="card"><div class="kicker">Exam-style · ${esc(SAA.catalog.find(m => m.num === b.mod)?.title || "")}</div>`
+        + useItem(b, key, ok => { SAA.recordBank(S, b.id, ok, d); s.res[s.pos] = ok; SAA.bump(S, d, "items"); });
+      if (bst.done) { const due = S.bank[b.id].due - d; h += `<p class="muted small after">Comes back ${due === 1 ? "tomorrow" : `in ${due} days`}.</p>`; }
+      return h + `</article>` + (bst.done ? nextBtn() : "");
     }
     const c = SAA.conceptById[it.g], st = ist(key);
     let h = bar + `<article class="card"><div class="kicker">Review${st.done ? ` · ${esc(c.title)}` : ""}</div>`
@@ -358,10 +366,22 @@ Please:
     el.innerHTML = rows.length ? rows.map(g => `<div><dt>${esc(g[0])} <span>· ${esc(g[1])}</span></dt><dd>${esc(g[2])} <span class="tag">Module ${g[3]}</span></dd></div>`).join("") : `<p class="muted">No matches.</p>`;
   }
 
+  function syncCard() {
+    const y = SAA.sync, st = y.status;
+    if (st === "off") return `<section class="card"><h3>Sync</h3><p class="muted small">${SAA.firebaseConfig ? "Sync works on the hosted site, online. It's off here (opened from a file, or offline)." : "Sync isn't set up yet."}</p></section>`;
+    const label = { checking: "Checking sign-in…", "signed-out": "Not signed in", syncing: "Syncing…", ok: "Synced", error: "Sync problem" }[st] || st;
+    return `<section class="card"><h3>Sync</h3>
+      <p class="muted small">Sign in with the same Google account on your phone and laptop and they share progress. Answers from both devices are merged, never overwritten.</p>
+      <p><strong>${label}</strong>${y.user ? ` <span class="muted small">as ${esc(y.user.email || "")}</span>` : ""}</p>
+      ${st === "error" ? `<p class="note">${esc(y.error)}</p>` : ""}
+      <div class="actions-row">${y.user ? `<button class="btn ghost" data-go="sync-out">Sign out</button>` : st === "checking" ? "" : `<button class="btn" data-go="sync-in">Sign in with Google</button>`}</div></section>`;
+  }
+
   function vSettings() {
     const off = S.settings.dayOffset || 0;
     return `<h2 class="page-h">Settings</h2>${examCard()}
-      <section class="card"><h3>Backup</h3><p class="muted small">Progress lives only in this browser. Clearing site data erases it, so export a backup now and then (and to move to another device).</p>
+${syncCard()}
+      <section class="card"><h3>Backup</h3><p class="muted small">${SAA.sync.user ? "Progress is synced to your Google account. A backup file is still a good idea now and then." : "Progress lives only in this browser. Clearing site data erases it, so export a backup now and then."}</p>
         <div class="actions-row"><button class="btn ghost" data-go="export">Export progress</button><button class="btn ghost" data-go="import">Import progress</button><input type="file" id="importFile" accept="application/json,.json" hidden></div>
         ${UI.msg ? `<p class="note">${esc(UI.msg)}</p>` : ""}</section>
       <section class="card"><h3>Testing: pretend it's another day</h3><p class="muted small">Moves "today" forward so you can see how reviews come back. Currently ${off ? `<strong>${plural(off, "day")} ahead</strong>` : "off"}.</p>
@@ -424,6 +444,8 @@ Please:
       case "chal-next": UI.playChal++; return rerender();
       case "netchal-reset": { const k = `X|net|${UI.playNetChal}`; delete S.ist[k]; delete SAA.tracer.inst[k]; save(); return rerender(); }
       case "netchal-next": UI.playNetChal++; return rerender();
+      case "sync-in": return SAA.sync.signIn();
+      case "sync-out": return SAA.sync.signOut();
       case "export": {
         const blob = new Blob([JSON.stringify(S)], { type: "application/json" }), a2 = document.createElement("a");
         a2.href = URL.createObjectURL(blob); a2.download = `saa-progress-${SAA.isoFromDay(today())}.json`; a2.click(); URL.revokeObjectURL(a2.href);
@@ -434,7 +456,7 @@ Please:
       case "day-reset": S.settings.dayOffset = 0; save(); return rerender();
       case "reset": {
         if (UI.confirm !== "reset") { UI.confirm = "reset"; return rerender(); }
-        S = SAA.newState(); save(); return go("today");
+        S = SAA.newState(); save(); SAA.sync.replace(); return go("today");
       }
     }
   }
@@ -454,7 +476,7 @@ Please:
     if (t.id === "play-netchal") { UI.playNetChal = +t.value; return rerender(); }
     if (t.id === "importFile" && t.files[0]) {
       t.files[0].text().then(txt => {
-        try { const s = JSON.parse(txt); if (!s || s.v !== 2) throw new Error("not a backup from this course"); S = Object.assign(SAA.newState(), s); S.view = { name: "settings" }; save(); UI.msg = "Progress imported."; }
+        try { const s = JSON.parse(txt); if (!s || s.v !== 2) throw new Error("not a backup from this course"); S = Object.assign(SAA.newState(), s); S.view = { name: "settings" }; save(); SAA.sync.replace(); UI.msg = "Progress imported."; }
         catch (err) { UI.msg = `Import failed: ${err.message}.`; }
         render();
       });
@@ -484,5 +506,14 @@ Please:
   SAA.index();
   S = SAA.load();
   if (S.view.name === "lesson" && !SAA.lessonById[S.view.l]) S.view = { name: "course" };
+  SAA.sync.getState = () => S;
+  SAA.sync.onRemote = remote => {
+    S = SAA.merge(S, remote);
+    if (SAA.staleSession(S)) S.session = null;   // rebuilt from the merged progress on the next render
+    SAA.save(S);
+    const a = document.activeElement;
+    if (!(a && /^(TEXTAREA|INPUT|SELECT)$/.test(a.tagName))) rerender();   // don't yank focus while typing
+  };
+  SAA.sync.onStatus = () => { if (S.view.name === "settings") rerender(); };
   render();
 })(window.SAA);

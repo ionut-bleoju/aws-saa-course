@@ -7,7 +7,7 @@ import vm from "node:vm";
 
 const root = path.resolve(import.meta.dirname, "..");
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
-const scripts = [...html.matchAll(/<script src="([^"]+)"/g)].map(m => m[1]).filter(s => !s.endsWith("app.js"));
+const scripts = [...html.matchAll(/<script src="([^"]+)"/g)].map(m => m[1]).filter(s => !/^https?:|app\.js$|sync\.js$/.test(s));
 const ctx = { console };
 ctx.window = ctx;
 vm.createContext(ctx);
@@ -154,6 +154,29 @@ for (const m of SAA.modules) {
 }
 SAA.modules.filter(m => m.num >= EXAM_FROM).forEach(examRules);
 SAA.practice.policy.forEach((it, i) => validItem(it, `practice/policy/${i}`));
+
+// ---------- question bank: exam-shaped mcq/multi, same rules as level 3 ----------
+const bankIds = new Set(), bankFiles = {};
+SAA.bank.forEach((b, i) => {
+  const w = `bank/${b.id || i}`;
+  if (!b.id || bankIds.has(b.id)) err(w, "missing or duplicate id"); bankIds.add(b.id);
+  if (!SAA.catalog.find(m => m.num === b.mod)) err(w, `mod ${b.mod} isn't a catalog module`);
+  if (!SAA.DOMAINS[b.domain]) err(w, `bad domain ${b.domain}`);
+  if (!["mcq", "multi"].includes(b.type)) err(w, "bank questions are mcq or multi");
+  validItem(b, w);
+  if (words(b.q) < 50) err(w, `stem has ${words(b.q)} words; exam-style needs 50+`);
+  if (!/\b(MOST|LEAST)\b|meets? (these|the) requirements/.test(b.q)) err(w, "stem needs a MOST/LEAST qualifier or \"meets these requirements\"");
+  if (b.type === "mcq" && b.options.length !== 4) err(w, "exam mcq needs exactly 4 options");
+  if (b.type === "multi" && (b.options.length < 5 || ![2, 3].includes(oks(b.options)))) err(w, "exam multi needs 5+ options with 2 or 3 correct");
+  const f = b.id.split("-")[0]; (bankFiles[f] = bankFiles[f] || []).push(b);
+});
+Object.entries(bankFiles).forEach(([f, list]) => {
+  const single = list.filter(v => v.type === "mcq");
+  const longest = single.filter(v => { const L = v.options.map(o => textLen(o.t)); return L[v.options.findIndex(o => o.ok)] === Math.max(...L); }).length;
+  if (single.length >= 10 && longest / single.length > 0.35) err(`bank/${f}`, `correct answer is the longest option in ${longest} of ${single.length} questions; keep it at 35% or less`);
+  const multi = list.filter(v => v.type === "multi").length;
+  if (list.length >= 20 && multi / list.length < 0.12) err(`bank/${f}`, `only ${multi} of ${list.length} questions are multi; need 12%+`);
+});
 SAA.glossary.forEach((g, i) => { if (g.length !== 4) err("glossary", `entry ${i} malformed`); });
 
 // ---------- engine sanity on the base network ----------
@@ -195,6 +218,53 @@ const mock = SAA.buildMock(S2, "mini", 120);
 if (mock.items.length !== SAA.MOCKS.mini.n) err("mocks", `mini mock has ${mock.items.length} items`);
 if (mock.items.some(x => !SAA.MOCK_TYPES.includes(SAA.conceptById[x.g].variants[x.v].type))) err("mocks", "mock contains a non-exam item type");
 
+// question bank: locked until the module is done, then new + due ones join the session
+{
+  const B = SAA.newState(), bday = 200, fake = { id: "zz-1", mod: 1 };
+  SAA.bank.push(fake); SAA.bankById[fake.id] = fake;
+  if (SAA.buildSession(B, bday).items.some(x => x.k === "bank")) err("bank", "questions shouldn't show before their module is done");
+  SAA.modules.find(m => m.num === 1).lessons.forEach(l => { B.lessons[l.gid] = { done: true }; });
+  if (!SAA.buildSession(B, bday).items.some(x => x.k === "bank" && x.id === fake.id)) err("bank", "a done module should unlock its questions");
+  SAA.recordBank(B, fake.id, true, bday);
+  if (B.bank[fake.id].due !== bday + SAA.NEXT[1]) err("bank", `right answer should come back in ${SAA.NEXT[1]} days`);
+  SAA.recordBank(B, fake.id, false, bday + 3);
+  if (B.bank[fake.id].due !== bday + 4) err("bank", "a miss should come back tomorrow");
+  if (!SAA.buildSession(B, bday + 4).items.some(x => x.id === fake.id)) err("bank", "due question should be in the session");
+  SAA.bank.pop(); delete SAA.bankById[fake.id];
+}
+
+// sync merge: two devices' progress combine without losing answers
+{
+  const g = Object.keys(SAA.conceptById)[0], l = SAA.lessonOrder[0], d0 = 300;
+  const pc = SAA.newState(); pc.settings.examDate = "2026-12-17"; pc.ts = 1;
+  SAA.recordConcept(pc, g, 0, true, "lesson", d0); pc.lessons[l] = { step: 4, done: true };
+  pc.session = { day: d0, items: [{}, {}, {}], pos: 2, res: {} }; pc.ist[`S|${d0}|0`] = { done: true }; pc.activity[d0] = { items: 3, lessons: 1 };
+  const phone = SAA.newState(); phone.ts = 2; phone.session = { day: d0, items: [{}], pos: 0, res: {} }; phone.view = { name: "settings" };
+  const m = SAA.merge(phone, pc);
+  if (m.settings.examDate !== "2026-12-17") err("merge", "a fresh device shouldn't wipe the exam date");
+  if (!m.concepts[g] || !m.lessons[l]?.done) err("merge", "progress from the other device is missing");
+  if (m.session.pos !== 2 || !m.ist[`S|${d0}|0`]) err("merge", "the session further along should win, with its answers");
+  if (m.view.name !== "settings") err("merge", "this device's view should be kept");
+  // both devices review the same concept on different days while offline
+  const a = JSON.parse(JSON.stringify(m)), b = JSON.parse(JSON.stringify(m));
+  SAA.recordConcept(a, g, 1, true, "review", d0 + 1);
+  SAA.recordConcept(b, g, 2, false, "review", d0 + 2);
+  const ab = SAA.merge(a, b);
+  if (ab.concepts[g].hist.length !== 3) err("merge", `diverged histories should union (got ${ab.concepts[g].hist.length})`);
+  if (ab.concepts[g].due !== d0 + 3) err("merge", "replayed schedule should end with the later miss (due next day)");
+  if (JSON.stringify(SAA.merge(ab, b).concepts) !== JSON.stringify(ab.concepts)) err("merge", "merging again should change nothing");
+  // both devices must reach the same result, or sync would ping-pong forever
+  SAA.recordConcept(a, g, 2, true, "review", d0 + 2);   // same day as b's miss
+  const strip = x => { const o = Object.assign({}, x); delete o.view; delete o.ts; return SAA.canon(o); };
+  if (strip(SAA.merge(a, b)) !== strip(SAA.merge(b, a))) err("merge", "merge(a, b) and merge(b, a) should give the same progress");
+  // a fresh device's untouched session is stale once the real progress arrives
+  const fresh = SAA.newState(); fresh.ts = 9; fresh.session = SAA.buildSession(fresh, d0 + 5);
+  const fm = SAA.merge(fresh, pc);
+  if (!SAA.staleSession(fm)) err("merge", "a session built from an empty device should be rebuilt after the merge");
+  fm.session = SAA.buildSession(fm, d0 + 5);
+  if (SAA.staleSession(fm)) err("merge", "a freshly rebuilt session shouldn't be stale");
+}
+
 // level ladder on a made-up leveled concept (modules 1-3 have no levels)
 const lc = { variants: [1, 2, 2, 3, 3].map(level => ({ type: "mcq", level })) };
 const lh = hist => ({ hist: hist.map(([v, ok, k = "review"], d) => ({ d, v, ok, k })), seen: {} });
@@ -210,4 +280,4 @@ if (SAA.pickVariant(lc3, lc) !== 4) err("ladder", "at level 3, should not repeat
 const nConcepts = Object.keys(SAA.conceptById).length;
 const nLessons = SAA.lessonOrder.length;
 if (errs.length) { console.error(errs.map(e => "✗ " + e).join("\n")); console.error(`\n${errs.length} problem(s).`); process.exit(1); }
-console.log(`✓ ${SAA.modules.length} modules, ${nLessons} lessons, ${nConcepts} concepts, ${checked} items checked; engines and scheduler OK.`);
+console.log(`✓ ${SAA.modules.length} modules, ${nLessons} lessons, ${nConcepts} concepts, ${SAA.bank.length} bank questions, ${checked} items checked; engines and scheduler OK.`);
