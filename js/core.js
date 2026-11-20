@@ -302,14 +302,28 @@ window.SAA = window.SAA || {};
     const mocks = {};
     [...older.mocks, ...newer.mocks].forEach(m => { const o = mocks[m.id]; if (!o || !o.done || m.done) mocks[m.id] = m; });
     M.mocks = Object.values(mocks).sort((x, y) => x.start - y.start);
-    // Session: the later day wins; on the same day, the one further along. Its answers ("S|" keys) come only from that side.
+    // Session answers live in ist under "S|day|pos". Answering doesn't move pos, so progress must count answers too,
+    // or a device that hasn't seen the answer yet can win and wipe it.
     const sx = A.session, sy = B.session;
-    const win = !sx ? B : !sy ? A : sx.day !== sy.day ? (sx.day > sy.day ? A : B) : sx.pos !== sy.pos ? (sx.pos > sy.pos ? A : B)
-      : (sx.base ?? -1) !== (sy.base ?? -1) ? ((sx.base ?? -1) > (sy.base ?? -1) ? A : B) : JSON.stringify(sx) >= JSON.stringify(sy) ? A : B;   // same on both devices, so they agree
-    M.session = win.session;
+    const answered = (X, s) => Object.keys(X.ist).filter(k => k.startsWith(`S|${s.day}|`) && X.ist[k].done).length;
+    const progress = (X, s) => [s.pos, answered(X, s), s.base ?? -1];
+    const ahead = (p, q) => { for (let i = 0; i < p.length; i++) if (p[i] !== q[i]) return p[i] > q[i]; return null; };
     Object.assign(M.ist, older.ist, newer.ist);
     Object.keys(M.ist).forEach(k => { if (k.startsWith("S|")) delete M.ist[k]; });
-    Object.keys(win.ist).forEach(k => { if (k.startsWith("S|")) M.ist[k] = win.ist[k]; });
+    if (sx && sy && sx.day === sy.day && SAA.canon(sx.items) === SAA.canon(sy.items)) {
+      // Same session on both devices: combine answers item by item, and keep the furthest position.
+      M.session = Object.assign({}, sx, { pos: Math.max(sx.pos, sy.pos), res: Object.assign({}, sx.res, sy.res), base: Math.max(sx.base ?? -1, sy.base ?? -1) });
+      keys(A.ist, B.ist).filter(k => k.startsWith(`S|${sx.day}|`)).forEach(k => {
+        const x = A.ist[k], y = B.ist[k];
+        M.ist[k] = !x ? y : !y ? x : !!x.done !== !!y.done ? (x.done ? x : y) : SAA.canon(x) >= SAA.canon(y) ? x : y;   // answered beats unanswered; ties pick the same copy on both devices
+      });
+    } else {
+      // Different sessions: the later day wins; on the same day, the one with more progress. Its answers come only from that side.
+      const cmp = !sx ? false : !sy ? true : sx.day !== sy.day ? sx.day > sy.day : ahead(progress(A, sx), progress(B, sy));
+      const win = cmp === null ? (SAA.canon(sx) >= SAA.canon(sy) ? A : B) : cmp ? A : B;
+      M.session = win.session;
+      Object.keys(win.ist).forEach(k => { if (k.startsWith("S|")) M.ist[k] = win.ist[k]; });
+    }
     return JSON.parse(JSON.stringify(M));
   };
 })(window.SAA);

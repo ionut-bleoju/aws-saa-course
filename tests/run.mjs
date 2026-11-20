@@ -257,6 +257,19 @@ if (mock.items.some(x => !SAA.MOCK_TYPES.includes(SAA.conceptById[x.g].variants[
   SAA.recordConcept(a, g, 2, true, "review", d0 + 2);   // same day as b's miss
   const strip = x => { const o = Object.assign({}, x); delete o.view; delete o.ts; return SAA.canon(o); };
   if (strip(SAA.merge(a, b)) !== strip(SAA.merge(b, a))) err("merge", "merge(a, b) and merge(b, a) should give the same progress");
+  // answering doesn't move pos: the other device's unanswered copy must not wipe the answer
+  {
+    const sd = d0 + 9, base = JSON.parse(JSON.stringify(ab));
+    base.session = { day: sd, items: [{ k: "review", g, v: 1 }, { k: "review", g, v: 2 }], pos: 0, res: {}, base: 5 };
+    const pc2 = JSON.parse(JSON.stringify(base)), ph2 = JSON.parse(JSON.stringify(base)); pc2.ts = 10; ph2.ts = 20;
+    ph2.ist[`S|${sd}|0`] = { done: true, ok: true }; ph2.session.res[0] = true;
+    const atPc = SAA.merge(pc2, ph2), back = SAA.merge(ph2, atPc);
+    if (!atPc.ist[`S|${sd}|0`]?.done || !back.ist[`S|${sd}|0`]?.done) err("merge", "an answer in today's session was lost when the other device synced");
+    pc2.ist[`S|${sd}|1`] = { done: true, ok: false }; pc2.session.res[1] = false; pc2.session.pos = 1;
+    const both = SAA.merge(pc2, ph2);
+    if (!both.ist[`S|${sd}|0`]?.done || !both.ist[`S|${sd}|1`]?.done || both.session.pos !== 1) err("merge", "answers to different questions on two devices should both be kept");
+    if (strip(both) !== strip(SAA.merge(ph2, pc2))) err("merge", "session merge should give the same result on both devices");
+  }
   // a fresh device's untouched session is stale once the real progress arrives
   const fresh = SAA.newState(); fresh.ts = 9; fresh.session = SAA.buildSession(fresh, d0 + 5);
   const fm = SAA.merge(fresh, pc);
